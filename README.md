@@ -54,7 +54,7 @@ assert x == [1,2]
 
 The `-` or `item` templates takes an object type and makes setters for each field. The setters can be used in a do block passed after the type. The setters are normal Nim proc's and can be called in any way Nim supports, including using `:` block calls. Note that by defining setter functions autocomplete can help find options.
 
-Here's an example: 
+Here's an example:
 
 ```nim
 type Foo = object
@@ -90,7 +90,7 @@ fooBars = list:
 
 The `antExport` macro is used to setup the variable name's so that the embedded Nim interpreter can find the data.
 
-The data is exported using a fork of msgpack4nim that can run in a Nim script. You can override the serialization by implementing `pack` for a given type, though this shouldn't be needed. 
+The data is exported using a fork of msgpack4nim that can run in a Nim script. You can override the serialization by implementing `pack` for a given type, though this shouldn't be needed.
 
 ## Credits
 
