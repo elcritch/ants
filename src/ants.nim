@@ -1,7 +1,25 @@
-# This is just an example to get you started. A typical hybrid package
-# uses this file as the main entry point of the application.
+import sequtils, macros, options
+import pegs
+import nimscripter, nimscripter/variables
 
-import antspkg/submodule
+import compiler/[ast]
 
-when isMainModule:
-  echo(getWelcomeMessage())
+proc fromVm*(t: typedesc[Peg], node: PNode): Peg =
+  if node.kind == nkStrLit:
+    peg(node.strVal)
+  else:
+    raise newException(VMParseError, "Cannot convert to: " & $t)
+
+proc runConfigScript*[T](path: string): T =
+  let
+    intr = loadScript(
+      NimScriptPath(path),
+      # stdPath = "stdlib/",
+      searchPaths = @["src"],
+      defines = @{"nimscript": "true",
+                  "nimconfig": "true",
+                  "nimscripter": "true"})
+  
+  getGlobalNimsVars intr:
+    config = default(T)
+  result = config
