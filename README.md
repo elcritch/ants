@@ -32,8 +32,11 @@ This can be run by the `ants` cli tool to print out a JSON or MsgPack form of th
 
 ```sh
 ants -f tests/cimport_example.ants > output.json
-ants -b -f tests/cimport_example.ants > output.mpack
+ants -b -f tests/cimport_example.ants > output.mpack 
+nim c -r tests/cimport_example.ants > output.json 
 ```
+
+Note that the extension can be either `ants`, `nim`, or `nims`. Though `nims` doesn't work as well with autocomplete. The `ants` can be used in VSCode if you set the "file association" for it to Nim. 
 
 ## How does this work? 
 

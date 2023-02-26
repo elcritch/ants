@@ -46,6 +46,3 @@ when not defined(nimscripter):
   import json
   proc `%`*(n: Peg): JsonNode = %($n)
 
-
-# setupAntOptions(ImporterConfig)
-
