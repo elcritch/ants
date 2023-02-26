@@ -85,3 +85,9 @@ fooBars = list:
       "hello"
       "world"
 ```
+
+## Exporting Data
+
+The `antExport` macro is used to setup the variable name's so that the embedded Nim interpreter can find the data.
+
+The data is exported using a fork of msgpack4nim that can run in a Nim script. You can override the serialization by implementing `pack` for a given type, though this shouldn't be needed. 
