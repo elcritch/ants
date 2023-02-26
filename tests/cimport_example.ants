@@ -63,7 +63,6 @@ antExport ImporterConfig:
           - Replace:
             pattern: peg"'rcutils_array_list_impl_s'"
             repl: "rcutils_array_list_impl_t"
-    
     c2NimCfgs:list:
       - C2NimCfg:
         fileMatch: peg"'rcutils/testing/fault_injection.h'"
