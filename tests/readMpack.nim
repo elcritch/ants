@@ -1,7 +1,5 @@
-import pegs
-import msgpack4nim
-import json
-import tests/cimport_options
+import pegs, msgpack4nim, json
+import cimport_options
 
 let data = readAll(open("out.mpack"))
 

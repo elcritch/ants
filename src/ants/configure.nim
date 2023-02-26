@@ -89,10 +89,10 @@ proc `%`*[T](o: ref T): JsonNode =
   else:
     result = %(o[])
 
-var antConfigBuff*: string
-
 template antExport*[T](typ: typedesc[T], blk: untyped) =
   var antConfigValue* {.inject.}: T = default(typ)
+  var antConfigBuff* {.inject.}: string
+
   settersImpl(typ, antConfigValue)
 
   blk

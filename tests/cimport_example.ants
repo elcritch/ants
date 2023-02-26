@@ -1,4 +1,4 @@
-include cimport_options
+import cimport_options
 
 antExport ImporterConfig:
   cimports:list: item ImportConfig:
