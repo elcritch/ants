@@ -2,3 +2,6 @@ ants
 *.out
 tests/cimport_example
 tests/cimport_options
+tests/cimport_ant
+out.mpack
+readMpack

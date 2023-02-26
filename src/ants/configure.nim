@@ -1,8 +1,6 @@
 import macros
 from strutils import dedent
 export dedent
-import json
-export json
 
 
 func str*(val: static[string]): string =
@@ -78,15 +76,43 @@ template item*[T](typ: typedesc[T], blk: untyped): auto =
   ##
   `-`(typ, blk)
 
-var antConfigJson*: JsonNode
+import json
+export json
+
+proc `%`*(n: char): JsonNode = %(n.int)
+proc `%`*[T](n: set[T]): JsonNode =
+  result = newJArray()
+  for e in items(n): result.add(% e)
+proc `%`*[T](o: ref T): JsonNode =
+  if o.isNil:
+    result = newJNull()
+  else:
+    result = %(o[])
+
 
 template antExport*[T](typ: typedesc[T], blk: untyped) =
-  var antConfigValue*: T = default(typ)
+  var antConfigValue* {.inject.}: T = default(typ)
   settersImpl(typ, antConfigValue)
 
   blk
 
-  antConfigJson = %* antConfigValue
-  when not defined(nimscripter):
+  when defined(nimscripter):
+    import ants/msgpack_lite
+
+    let res = pack(antConfigValue)
+    # import flatty/hexprint
+    # echo res.hexPrint()
+    echo res
+  else:
+    import json
+    import msgpack4nim
+    import msgpack4nim/msgpack2json
+
+    var ss = MsgStream.init(encodingMode = MSGPACK_OBJ_TO_MAP)
+    ss.pack(antConfigValue)
+    ss.setPosition(0)
+    let jn = ss.toJsonNode()
+    var antConfigJson* {.inject.}: JsonNode = jn
     echo antConfigJson.pretty()
+    
 

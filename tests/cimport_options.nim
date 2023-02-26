@@ -42,7 +42,10 @@ type
 
 var cImportConfigs* = ImporterConfig()
 
-proc `%`*(n: Peg): JsonNode = %($n)
+when not defined(nimscripter):
+  import json
+  proc `%`*(n: Peg): JsonNode = %($n)
+
 
 # setupAntOptions(ImporterConfig)
 
