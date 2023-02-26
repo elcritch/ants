@@ -12,7 +12,7 @@ bin           = @["ants"]
 # Dependencies
 
 requires "nim >= 1.6.0"
-requires "nimscripter >= 1.0.17"
+requires "nimscripter >= 1.0.18"
 requires "compiler"
 requires "cligen"
 requires "msgpack4nim"
