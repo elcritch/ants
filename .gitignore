@@ -1,3 +1,4 @@
 ants
 *.out
 tests/cimport_example
+tests/cimport_options

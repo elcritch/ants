@@ -40,10 +40,9 @@ when isMainModule: # Preserve ability to `import api`/call from Nim
               "json": 'j',
               }.toTable()
   import cligen
-  # dispatch(runImports, short = Short)
+
   var app = initFromCL(dflOpts, short = Short)
   echo "app: ", $(app)
-
   if app.json:
     let res = runConfigScript(JsonNode, app.file)
     echo res.pretty()

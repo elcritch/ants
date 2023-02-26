@@ -111,6 +111,8 @@ addConfig: item(ImportConfig):
 
 import json
 proc `%`(n: Peg): JsonNode = %($n)
-# var configs*: JsonNode = %* cImportConfigs
 var configs*: JsonNode
-configs = %* {"hi": 1}
+configs = %* cImportConfigs
+
+when not defined(nimscripter):
+  echo configs.pretty()
