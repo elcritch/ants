@@ -44,5 +44,5 @@ var cImportConfigs* = ImporterConfig()
 
 proc `%`*(n: Peg): JsonNode = %($n)
 
-setupAntOptions(ImporterConfig)
+# setupAntOptions(ImporterConfig)
 

@@ -1,7 +1,7 @@
 include cimport_options
 
-cimports:list:
-  item ImportConfig:
+antExport ImporterConfig:
+  cimports:list: item ImportConfig:
     name: "rcutils"
     sources: "deps/rcutils/include"
     globs: ["**/*.h"]
@@ -106,5 +106,3 @@ cimports:list:
         rawNims: str"""
           converter charToNum*(c: char): int = c.int 
           """
-
-exports(getConfig())

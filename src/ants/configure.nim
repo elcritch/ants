@@ -78,14 +78,15 @@ template item*[T](typ: typedesc[T], blk: untyped): auto =
   ##
   `-`(typ, blk)
 
-template setupAntOptions*[T](typ: typedesc[T]) =
+var antConfigJson*: JsonNode
+
+template antExport*[T](typ: typedesc[T], blk: untyped) =
   var antConfigValue*: T = default(typ)
   settersImpl(typ, antConfigValue)
-  proc getConfig*(): T = antConfigValue
 
-template exports*[T](cfg: T) =
-  when not defined(antsDirect):
-    var antConfigJson*: JsonNode = %* cfg
-    when not defined(nimscripter):
-      echo antConfigJson.pretty()
+  blk
+
+  antConfigJson = %* antConfigValue
+  when not defined(nimscripter):
+    echo antConfigJson.pretty()
 
