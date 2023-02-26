@@ -28,12 +28,27 @@ proc runConfigScript*[T](typ: typedesc[T], path: string): T =
       searchPaths = @["src"],
       defines = @{"nimscript": "true",
                   "nimconfig": "true",
+                  "antsDirect": "true",
                   "nimscripter": "true"})
   
   getGlobalNimsVars intr:
-    configs: T
-  result = configs
-
+    antConfigValue: T
+  result = antConfigValue
+  
+proc runConfigScriptJson*(path: string): JsonNode =
+  let
+    intr = loadScript(
+      NimScriptPath(path),
+      # stdPath = "stdlib/",
+      searchPaths = @["src"],
+      defines = @{"nimscript": "true",
+                  "nimconfig": "true",
+                  "nimscripter": "true"})
+  
+  getGlobalNimsVars intr:
+    antConfigJson: JsonNode
+  result = antConfigJson
+  
 when isMainModule: # Preserve ability to `import api`/call from Nim
   const
     Short = { "file": 'f',
@@ -44,5 +59,5 @@ when isMainModule: # Preserve ability to `import api`/call from Nim
   var app = initFromCL(dflOpts, short = Short)
   echo "app: ", $(app)
   if app.json:
-    let res = runConfigScript(JsonNode, app.file)
+    let res = runConfigScriptJson(app.file)
     echo res.pretty()

@@ -1,8 +1,9 @@
-import pegs
+import pegs, ants/configure
+export configure, pegs
 
 type
   ImporterConfig* = object
-    imports*: seq[ImportConfig]
+    cimports*: seq[ImportConfig]
 
   ImportConfig* = object
     name*: string
@@ -41,5 +42,7 @@ type
 
 var cImportConfigs* = ImporterConfig()
 
-proc addConfig*(cfg: ImportConfig) =
-  cImportConfigs.imports.add cfg
+proc `%`*(n: Peg): JsonNode = %($n)
+
+setupAntOptions(ImporterConfig)
+

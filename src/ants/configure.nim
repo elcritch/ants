@@ -1,6 +1,9 @@
 import macros
 from strutils import dedent
 export dedent
+import json
+export json
+
 
 func str*(val: static[string]): string =
   ## default block string formatting. Currently uses `strutils.dedent`.
@@ -74,4 +77,15 @@ template item*[T](typ: typedesc[T], blk: untyped): auto =
   ## alias for `-` template above.
   ##
   `-`(typ, blk)
+
+template setupAntOptions*[T](typ: typedesc[T]) =
+  var antConfigValue*: T = default(typ)
+  settersImpl(typ, antConfigValue)
+  proc getConfig*(): T = antConfigValue
+
+template exports*[T](cfg: T) =
+  when not defined(antsDirect):
+    var antConfigJson*: JsonNode = %* cfg
+    when not defined(nimscripter):
+      echo antConfigJson.pretty()
 
