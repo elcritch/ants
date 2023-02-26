@@ -1,5 +1,5 @@
-import pegs, ants/configure
-export configure, pegs
+import pegs, ants/language_v1
+export pegs
 
 type
   ImporterConfig* = object

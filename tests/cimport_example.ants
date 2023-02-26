@@ -1,3 +1,4 @@
+import ants/language_v1
 import cimport_options
 
 antExport ImporterConfig:
