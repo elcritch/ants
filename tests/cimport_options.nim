@@ -39,7 +39,7 @@ type
     until*: Peg
     inclusive*: bool
 
-var configs* = ImporterConfig()
+var cImportConfigs* = ImporterConfig()
 
 proc addConfig*(cfg: ImportConfig) =
-  configs.imports.add cfg
+  cImportConfigs.imports.add cfg

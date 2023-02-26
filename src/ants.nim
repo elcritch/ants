@@ -1,8 +1,18 @@
 import sequtils, macros, options
-import pegs
+import pegs, tables
 import nimscripter, nimscripter/variables
+import json
 
 import compiler/[ast]
+
+type
+  AntsOptions* = object
+    file*: string
+    json*: bool
+
+const dflOpts = AntsOptions(
+  json: false
+)
 
 proc fromVm*(t: typedesc[Peg], node: PNode): Peg =
   if node.kind == nkStrLit:
@@ -10,7 +20,7 @@ proc fromVm*(t: typedesc[Peg], node: PNode): Peg =
   else:
     raise newException(VMParseError, "Cannot convert to: " & $t)
 
-proc runConfigScript*[T](path: string): T =
+proc runConfigScript*[T](typ: typedesc[T], path: string): T =
   let
     intr = loadScript(
       NimScriptPath(path),
@@ -21,5 +31,19 @@ proc runConfigScript*[T](path: string): T =
                   "nimscripter": "true"})
   
   getGlobalNimsVars intr:
-    config = default(T)
-  result = config
+    configs: T
+  result = configs
+
+when isMainModule: # Preserve ability to `import api`/call from Nim
+  const
+    Short = { "file": 'f',
+              "json": 'j',
+              }.toTable()
+  import cligen
+  # dispatch(runImports, short = Short)
+  var app = initFromCL(dflOpts, short = Short)
+  echo "app: ", $(app)
+
+  if app.json:
+    let res = runConfigScript(JsonNode, app.file)
+    echo res.pretty()

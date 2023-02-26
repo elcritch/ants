@@ -1,5 +1,6 @@
-import sequtils, strutils, macros
-export sequtils, strutils
+import macros
+from strutils import dedent
+export dedent
 
 func str*(val: static[string]): string =
   ## default block string formatting. Currently uses `strutils.dedent`.
@@ -17,7 +18,8 @@ macro list*(codeBlock: untyped): untyped =
   ##     [ 1, 2, ]
   ## 
   result = newNimNode(nnkBracket)
-  result.add codeBlock.children().toSeq()
+  for ch in codeBlock.children:
+    result.add(ch)
 
 macro settersImpl*[T](typ: typedesc[T], variable: typed) =
   ## makes settors for each field in the given `typ`. 

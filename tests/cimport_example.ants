@@ -109,8 +109,8 @@ addConfig: item(ImportConfig):
         converter charToNum*(c: char): int = c.int 
         """
 
-when isMainModule:
-  import json
-  proc `%`(n: Peg): JsonNode = %($n)
-  let res = % configs
-  echo res.pretty()
+import json
+proc `%`(n: Peg): JsonNode = %($n)
+# var configs*: JsonNode = %* cImportConfigs
+var configs*: JsonNode
+configs = %* {"hi": 1}
