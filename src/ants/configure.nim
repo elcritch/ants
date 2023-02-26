@@ -89,6 +89,7 @@ proc `%`*[T](o: ref T): JsonNode =
   else:
     result = %(o[])
 
+var antConfigBuff*: string
 
 template antExport*[T](typ: typedesc[T], blk: untyped) =
   var antConfigValue* {.inject.}: T = default(typ)
@@ -100,9 +101,8 @@ template antExport*[T](typ: typedesc[T], blk: untyped) =
     import ants/msgpack_lite
 
     let res = pack(antConfigValue)
-    # import flatty/hexprint
-    # echo res.hexPrint()
-    echo res
+    antConfigBuff = res
+    # echo res
   else:
     import json
     import msgpack4nim
@@ -112,7 +112,6 @@ template antExport*[T](typ: typedesc[T], blk: untyped) =
     ss.pack(antConfigValue)
     ss.setPosition(0)
     let jn = ss.toJsonNode()
-    var antConfigJson* {.inject.}: JsonNode = jn
-    echo antConfigJson.pretty()
+    echo jn.pretty()
     
 

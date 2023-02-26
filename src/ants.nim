@@ -3,15 +3,21 @@ import pegs, tables
 import nimscripter, nimscripter/variables
 import json
 
+import msgpack4nim
+import msgpack4nim/msgpack2json
+import flatty/hexprint
+
+
 import compiler/[ast]
 
 type
   AntsOptions* = object
     file*: string
-    json*: bool
+    bin*: bool
+    hex*: bool
 
 const dflOpts = AntsOptions(
-  json: false
+  bin: false
 )
 
 var systems = @[
@@ -39,7 +45,7 @@ proc runConfigScript*[T](typ: typedesc[T], path: string): T =
   #   antConfigValue: T
   # result = antConfigValue
   
-proc runConfigScriptJson*(path: string): JsonNode =
+proc runConfigScript*(path: string): string =
   let
     intr = loadScript(
       NimScriptPath(path),
@@ -49,18 +55,21 @@ proc runConfigScriptJson*(path: string): JsonNode =
                   "nimscripter": "true"})
   
   getGlobalNimsVars intr:
-    antConfigJson: JsonNode
-  result = antConfigJson
+    antConfigBuff: string
+  result = antConfigBuff
 
 when isMainModule: # Preserve ability to `import api`/call from Nim
   const
     Short = { "file": 'f',
-              "json": 'j',
+              "bin": 'b',
               }.toTable()
   import cligen
 
   var app = initFromCL(dflOpts, short = Short)
-  # echo "app: ", $(app)
-  if app.json:
-    let res = runConfigScriptJson(app.file)
-    # echo res.pretty()
+  let res = runConfigScript(app.file)
+  if app.bin:
+    echo res
+  elif app.hex:
+    echo res.hexPrint()
+  else:
+    echo res.toJsonNode().pretty()
