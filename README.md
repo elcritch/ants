@@ -75,7 +75,8 @@ Combining these you get a YAML! See:
 
 ```nim
 var fooBars: array[2, Foo]
-fooBars = list:
+fooBars =
+  list:
   - Foo:
     field1: 23
   - Foo:
