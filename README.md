@@ -1,6 +1,6 @@
 # Ant
 
-![Alt text](ants.png)
+![Alt text](ants.png | width=50)
 
 Ant provides a statically checked configuration syntax similar to YAML. However, all types are Nim objects and constructs. 
 Here's a short example:
