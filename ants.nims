@@ -1,4 +1,4 @@
 --mm:orc
-# --d:release
+--d:debug
 # --opt:speed
 --threads:off
