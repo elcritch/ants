@@ -65,9 +65,11 @@ when isMainModule: # Preserve ability to `import api`/call from Nim
   var app = initFromCL(dflOpts, short = Short)
 
   let nimDump = execProcess("nim dump --verbosity:0 --dump.format:json json").
-                    parseJson()["lib_paths"]
+                    parseJson()
+                    # ["lib_paths"]
   var systems: HashSet[string]
-  for pthjn in nimDump:
+  systems.incl(nimDump["libpath"].getStr)
+  for pthjn in nimDump["lazyPaths"]:
     systems.incl(pthjn.getStr())
   for pth in app.paths:
     systems.incl(pth)
