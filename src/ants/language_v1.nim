@@ -2,6 +2,10 @@ import macros
 from strutils import dedent
 export dedent
 
+when not defined(nimscripter):
+ import streams, msgpack4nim
+ export streams, msgpack4nim
+
 
 func str*(val: static[string]): string =
   ## default block string formatting. Currently uses `strutils.dedent`.
