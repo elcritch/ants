@@ -1,10 +1,8 @@
 import macros
 from strutils import dedent
 export dedent
-
-when not defined(nimscripter):
- import streams, msgpack4nim
- export streams, msgpack4nim
+import json
+export json
 
 
 func str*(val: static[string]): string =
@@ -80,18 +78,12 @@ template item*[T](typ: typedesc[T], blk: untyped): auto =
   ##
   `-`(typ, blk)
 
-import json
-export json
-
-proc `%`*(n: char): JsonNode = %(n.int)
-proc `%`*[T](n: set[T]): JsonNode =
-  result = newJArray()
-  for e in items(n): result.add(% e)
-proc `%`*[T](o: ref T): JsonNode =
-  if o.isNil:
-    result = newJNull()
-  else:
-    result = %(o[])
+template serializeToJson() =
+  var ss = MsgStream.init(encodingMode = MSGPACK_OBJ_TO_MAP)
+  ss.pack(antConfigValue)
+  ss.setPosition(0)
+  let jn = ss.toJsonNode()
+  echo jn.pretty()
 
 template antExport*[T](typ: typedesc[T], blk: untyped) =
   var antConfigValue* {.inject.}: T = default(typ)
@@ -101,21 +93,17 @@ template antExport*[T](typ: typedesc[T], blk: untyped) =
 
   blk
 
-  when defined(nimscripter):
+  when defined(nimscript) or defined(nimscripter):
     import ants/msgpack_lite
 
     let res = pack(antConfigValue)
     antConfigBuff = res
-    # echo res
+    when defined(nimscript):
+      echo res
   else:
-    import json
-    import msgpack4nim
+    import json, streams, msgpack4nim
     import msgpack4nim/msgpack2json
+    serializeToJson()
 
-    var ss = MsgStream.init(encodingMode = MSGPACK_OBJ_TO_MAP)
-    ss.pack(antConfigValue)
-    ss.setPosition(0)
-    let jn = ss.toJsonNode()
-    echo jn.pretty()
     
 

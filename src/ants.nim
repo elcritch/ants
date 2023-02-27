@@ -1,7 +1,7 @@
 import sequtils, macros, options
 import pegs, tables, sets
 import nimscripter, nimscripter/variables
-import json, osproc
+import json, osproc, os
 
 import msgpack4nim
 import msgpack4nim/msgpack2json
@@ -76,6 +76,9 @@ when isMainModule: # Preserve ability to `import api`/call from Nim
 
   if app.debug:
     echo "system paths: ", systems.toSeq
+
+  if not app.file.fileExists():
+    raise newException(ValueError, "script doesn't exist: " & app.file)
   let res = runConfigScript(app.file, systems.toSeq)
   if app.bin:
     echo res
