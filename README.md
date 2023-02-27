@@ -1,7 +1,8 @@
 # Ant
 
-Ant provides a statically checked configuration syntax similar to YAML. However, all types are Nim objects and constructs. 
+![Alt text](ants.png)
 
+Ant provides a statically checked configuration syntax similar to YAML. However, all types are Nim objects and constructs. 
 Here's a short example:
 
 ```nim
@@ -28,7 +29,9 @@ antExport ImporterConfig:
           LineDelete(match: peg"'RCUTILS_PUBLIC'")
 ```
 
-This can be run by the `ants` cli tool to print out a JSON or MsgPack form of the config. There's an option to use `ants` as a library form that will recreate the Nim object's diretly. You can also embed the Nim interpreter directly into you app.  
+This can be executed by the `ants` cli tool to print out a JSON or MsgPack form of the config. YAML could be added easily.
+
+There's also an option to use `ants` as a library form that will recreate the Nim object's diretly. Also a helper template exists to embed the Nim interpreter directly into you another app.
 
 ```sh
 ants -f tests/cimport_example.ants > output.json
