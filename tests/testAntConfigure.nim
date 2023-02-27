@@ -1,16 +1,21 @@
 
 import ants/configure
 import cimport_options
-import print, os
+import os
+import unittest
+
 
 var fl = "cimport_example.ants"
 
 if not fl.fileExists():
   fl = "test" / fl
 
-let cimportsCfg = ImporterConfig.antConfiguration(
-  "tests/cimport_example.ants"
-)
+var cimportsCfg: ImporterConfig
 
-echo "cimportsCfg: "
-print cimportsCfg
+test "test run":
+  cimportsCfg = ImporterConfig.antConfiguration(
+    "tests/cimport_example.ants"
+  )
+
+test "test serde":
+  check cimportsCfg.cimports[0].name == "rcutils"

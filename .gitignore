@@ -6,3 +6,4 @@ tests/cimport_ant
 out.mpack
 readMpack
 tests/testAntConfigure
+tests/output.json

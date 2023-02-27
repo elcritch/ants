@@ -17,3 +17,6 @@ requires "compiler"
 requires "cligen"
 requires "msgpack4nim"
 requires "flatty"
+
+task test, "run tests":
+  exec "nim c --verbosity:0 -r tests/testAntConfigure.nim"
