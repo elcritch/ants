@@ -14,7 +14,8 @@ var cimportsCfg: ImporterConfig
 
 test "test run":
   cimportsCfg = ImporterConfig.antConfiguration(
-    "tests/cimport_example.ants"
+    "tests/cimport_example.ants",
+    antsBin = "./ants"
   )
 
 test "test serde":

@@ -6,11 +6,12 @@ proc antConfiguration*[T](
     typ: typedesc[T],
     path: string,
     debug = false,
+    antsBin = "ants",
     systems: seq[string] = @[]
 ): T =
   ## read value from ant configuration
-  let path = quoteShell(path)
-  let cmd = fmt"ants --bin -f {path}"
+  let qpath = quoteShell(path)
+  let cmd = fmt"{antsBin} --bin -f:{qpath}"
   let outp = execCmdEx(cmd, options={poUsePath})
   
   if outp.exitCode != 0:
