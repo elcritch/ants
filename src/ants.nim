@@ -15,6 +15,7 @@ type
     file*: string
     bin*: bool
     hex*: bool
+    debug*: bool
     paths*: seq[string]
 
 const dflOpts = AntsOptions(
@@ -71,6 +72,8 @@ when isMainModule: # Preserve ability to `import api`/call from Nim
   for pth in app.paths:
     systems.incl(pth)
 
+  if app.debug:
+    echo "system paths: ", systems.toSeq
   let res = runConfigScript(app.file, systems.toSeq)
   if app.bin:
     echo res
