@@ -1,5 +1,5 @@
 import sequtils, macros, options
-import pegs, tables
+import pegs, tables, sets
 import nimscripter, nimscripter/variables
 import json, osproc
 
@@ -65,13 +65,13 @@ when isMainModule: # Preserve ability to `import api`/call from Nim
 
   let nimDump = execProcess("nim dump --verbosity:0 --dump.format:json json").
                     parseJson()["lib_paths"]
-  var systems: seq[string]
+  var systems: HashSet[string]
   for pthjn in nimDump:
-    systems.add(pthjn.getStr())
+    systems.incl(pthjn.getStr())
   for pth in app.paths:
-    systems.add(pth)
+    systems.incl(pth)
 
-  let res = runConfigScript(app.file, systems)
+  let res = runConfigScript(app.file, systems.toSeq)
   if app.bin:
     echo res
   elif app.hex:
