@@ -5,3 +5,4 @@ tests/cimport_options
 tests/cimport_ant
 out.mpack
 readMpack
+tests/testAntConfigure

@@ -15,6 +15,7 @@ type
     file*: string
     bin*: bool
     hex*: bool
+    paths*: seq[string]
 
 const dflOpts = AntsOptions(
   bin: false
@@ -66,8 +67,9 @@ when isMainModule: # Preserve ability to `import api`/call from Nim
                     parseJson()["lib_paths"]
   var systems: seq[string]
   for pthjn in nimDump:
-    let pth = pthjn.getStr()
-    if pth.contains("ants"): systems.add(pth)
+    systems.add(pthjn.getStr())
+  for pth in app.paths:
+    systems.add(pth)
 
   let res = runConfigScript(app.file, systems)
   if app.bin:
