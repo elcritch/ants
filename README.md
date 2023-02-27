@@ -1,6 +1,6 @@
 # Ant
 
-<img src="ants.png" width="40">
+<img src="ants.png" width="30%">
 
 Ant provides a statically checked configuration syntax similar to YAML. However, all types are Nim objects and constructs. 
 Here's a short example:
