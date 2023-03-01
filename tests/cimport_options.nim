@@ -1,5 +1,5 @@
-import pegs, ants/language_v1
-export pegs
+import pegs, options, ants/language_v1
+export pegs, options
 
 type
   ImporterConfig* = object
@@ -37,7 +37,7 @@ type
   
   LineDelete* = object
     match*: Peg
-    until*: Peg
+    until*: Option[Peg]
     inclusive*: bool
 
 var cImportConfigs* = ImporterConfig()

@@ -36,11 +36,20 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
     let fieldTyp = node[1]
     let fproc =
       if fieldTyp.kind == nnkBracketExpr:
+        let fieldName = fieldTyp[0]
         let fieldTyp = fieldTyp[1]
-        quote do:
-          template `name`(`val`: openArray[`fieldTyp`]) {.used.} =
-            ## adds values to the field 
-            `variable`.`name`.add(`val`)
+
+        if repr(fieldName) == "Option":
+          quote do:
+            template `name`(`val`: `fieldTyp`) {.used.} =
+              ## adds values to the field 
+              `variable`.`name` = some(`val`)
+        else:
+          let fkind = ident "openArray"
+          quote do:
+            template `name`(`val`: `fkind`[`fieldTyp`]) {.used.} =
+              ## adds values to the field 
+              `variable`.`name`.add(`val`)
       else:
         quote do:
           template `name`(`val`: `fieldTyp`) {.used.} =
