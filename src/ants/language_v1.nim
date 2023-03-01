@@ -44,12 +44,14 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
             template `name`(`val`: `fieldTyp`) {.used.} =
               ## adds values to the field 
               `variable`.`name` = some(`val`)
-        else:
+        elif repr(fieldName) in ["seq"]:
           let fkind = ident "openArray"
           quote do:
             template `name`(`val`: `fkind`[`fieldTyp`]) {.used.} =
-              ## adds values to the field 
+              ## adds values to the field
               `variable`.`name`.add(`val`)
+        else:
+          raise newException(ValueError, "unhandled type: " & repr(fieldName))
       else:
         quote do:
           template `name`(`val`: `fieldTyp`) {.used.} =
