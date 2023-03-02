@@ -7,3 +7,5 @@ out.mpack
 readMpack
 tests/testAntConfigure
 tests/output.json
+tests/sf
+src/ants/language_v1

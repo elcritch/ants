@@ -4,7 +4,6 @@ export dedent
 import json
 export json
 
-
 func str*(val: static[string]): string =
   ## default block string formatting. Currently uses `strutils.dedent`.
   dedent(val)
@@ -96,7 +95,21 @@ template serializeToJson() =
   let jn = ss.toJsonNode()
   echo jn.pretty()
 
-template antExport*[T](typ: typedesc[T], blk: untyped) =
+macro `---`*(a: untyped): untyped =
+  echo "HIIII"
+  echo treeRepr(a)
+  if repr(a) == "antStart":
+    result = quote do:
+      antStart()
+  elif repr(a) == "antEnd":
+    result = quote do:
+      antEnd()
+
+template `...`*(a: untyped): untyped =
+  echo "BYYYEE"
+  var cImportConfigs* = ImporterConfig()
+
+template antExport*[T](typ: typedesc[T], blk: untyped): untyped =
   var antConfigValue* {.inject.}: T = default(typ)
   var antConfigBuff* {.inject.}: string
 
@@ -115,6 +128,26 @@ template antExport*[T](typ: typedesc[T], blk: untyped) =
     import json, streams, msgpack4nim
     import msgpack4nim/msgpack2json
     serializeToJson()
+
+template antDeclareStart*[T](typ: typedesc[T]): untyped =
+  template antStart*(): untyped =
+    var antConfigValue* {.inject.}: T = default(typ)
+    var antConfigBuff* {.inject.}: string
+
+    settersImpl(typ, antConfigValue)
+
+  template antEnd*(): untyped =
+    when defined(nimscript) or defined(nimscripter):
+      import ants/msgpack_lite
+
+      let res = pack(antConfigValue)
+      antConfigBuff = res
+      when defined(nimscript):
+        echo res
+    else:
+      import json, streams, msgpack4nim
+      import msgpack4nim/msgpack2json
+      serializeToJson()
 
     
 

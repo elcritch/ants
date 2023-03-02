@@ -40,9 +40,9 @@ type
     until*: Option[Peg]
     inclusive*: bool
 
-var cImportConfigs* = ImporterConfig()
 
-when not defined(nimscripter):
-  import json
-  proc `%`*(n: Peg): JsonNode = %($n)
+template cimportss*(blk: untyped): untyped =
+  antExport ImporterConfig:
+    blk
 
+antDeclareStart(ImporterConfig)
