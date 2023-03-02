@@ -1,6 +1,6 @@
-#? replace(sub = "!", by = "") | replace(sub = "%TAG", by = "# ") | replace(sub = "#% ", by = "")
-#% import ants/language_v1
-#% import cimport_options
+#? replace(sub = "!", by = "") | replace(sub = "%TAG", by = "# ") | replace(sub = "#.. ", by = "")
+#.. import ants/language_v1
+#.. import cimport_options
 %TAG ! tag:github.com/elcritch/ants
 --- !antStart
 
@@ -10,4 +10,4 @@ cimports: !list:
     sources: "deps/rcutils/include"
     globs: ["**/*.h"]
 
-#% !antEnd
+#.. !antEnd
