@@ -105,29 +105,15 @@ macro `---`*(a: untyped): untyped =
     result = quote do:
       antEnd()
 
-template `...`*(a: untyped): untyped =
-  echo "BYYYEE"
-  var cImportConfigs* = ImporterConfig()
+macro TAG*(a: untyped): untyped =
+  echo "TAG: ", treeRepr(a)
+  quote do:
+    discard
 
-template antExport*[T](typ: typedesc[T], blk: untyped): untyped =
-  var antConfigValue* {.inject.}: T = default(typ)
-  var antConfigBuff* {.inject.}: string
-
-  settersImpl(typ, antConfigValue)
-
-  blk
-
-  when defined(nimscript) or defined(nimscripter):
-    import ants/msgpack_lite
-
-    let res = pack(antConfigValue)
-    antConfigBuff = res
-    when defined(nimscript):
-      echo res
-  else:
-    import json, streams, msgpack4nim
-    import msgpack4nim/msgpack2json
-    serializeToJson()
+macro `%`*(a, b: untyped): untyped =
+  echo treeRepr a
+  result = quote do:
+    discard
 
 template antDeclareStart*[T](typ: typedesc[T]): untyped =
   template antStart*(): untyped =
@@ -148,6 +134,13 @@ template antDeclareStart*[T](typ: typedesc[T]): untyped =
       import json, streams, msgpack4nim
       import msgpack4nim/msgpack2json
       serializeToJson()
+
+template antExport*[T](typ: typedesc[T], blk: untyped): untyped =
+  antStart()
+  blk
+  antEnd()
+
+
 
     
 

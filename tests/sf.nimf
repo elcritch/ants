@@ -1,7 +1,6 @@
-#? replace(sub = "!", by = "") | replace(sub = "%TAG", by = "# ") | replace(sub = "#.. ", by = "")
-#.. import ants/language_v1
-#.. import cimport_options
-%TAG ! tag:github.com/elcritch/ants
+#? replace(sub = "!", by = "") | replace(sub = "#.. ", by = "")
+#.. import ants/language_v1, cimport_options
+%TAG !n! tag:github.com/elcritch/ants
 --- !antStart
 
 cimports: !list: 
