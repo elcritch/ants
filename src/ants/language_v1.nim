@@ -59,6 +59,9 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
     fields.add fproc
   result = fields
 
+template `-`*(blk: string): auto =
+  blk
+
 template `-`*[T](typ: typedesc[T], blk: untyped): auto =
   ## helps construct an object using "block call" syntax like:
   ##    
