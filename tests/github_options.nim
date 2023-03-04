@@ -9,10 +9,11 @@ type
   Dispatch* = object
     workflow_dispatch*: WorkFlow
     schedule*: seq[Crons]
-    push*: seq[Push]
+    push*: Push
 
   WorkFlow* = object
     inputs*: Inputs
+    test*: string
   
   Inputs* = object
     logLevel*: LogLevel
@@ -25,6 +26,9 @@ type
     options*: seq[string]
 
   Crons* = object
+    cron*: string
+  
   Push* = object
+    paths*: seq[string]
 
 antDeclareStart(GithubAction)
