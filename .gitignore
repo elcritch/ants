@@ -10,3 +10,4 @@ tests/output.json
 tests/sf
 src/ants/language_v1
 tests/cimport_example_yaml
+tests/github_action
