@@ -24,12 +24,6 @@ macro listImpl*(codeBlock: untyped): untyped =
   for ch in codeBlock.children:
     result.add(ch)
 
-type NList* = object
-let list* = NList()
-
-template `!`*(list: NList, blk: untyped): untyped =
-  listImpl(blk)
-
 macro settersImpl*[T](typ: typedesc[T], variable: typed) =
   ## makes settors for each field in the given `typ`. 
   let typImpl = getImpl(typ)
@@ -68,8 +62,16 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
 
 type
   NN* = object
+  NList* = object
 
-let n* = NN()
+let
+  list* = NList()
+  n* = NN()
+
+
+
+template `!`*(list: NList, blk: untyped): untyped =
+  listImpl(blk)
 
 proc `!`*(nn: NN): NN =
   nn
