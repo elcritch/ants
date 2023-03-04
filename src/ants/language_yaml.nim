@@ -8,6 +8,8 @@ func str*(val: static[string]): string =
   ## default block string formatting. Currently uses `strutils.dedent`.
   dedent(val)
 
+template 
+
 macro listImpl*(codeBlock: untyped): untyped =
   ## turns each line in the passed in code-block into an array:
   ## 

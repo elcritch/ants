@@ -1,7 +1,7 @@
-#? replace(sub = "#. ", by = "")
-#. import ants/language_yaml, github_options
-#. import macros
-#. expandMacros: antStart
+#? replace(sub = "## ", by = "")
+## import ants/language_yaml, github_options
+## import macros
+## expandMacros: antStart
 
 name: "Docker"
 
@@ -22,12 +22,12 @@ on: !n!Dispatch:
           - "info"
           - "warning"
           - "debug"
-        default: | #. str"""
+        default: | ## str"""
           faf
           111
           fdfa / fdaf
           fdafd
-          #. """
+          ## """
   schedule: !list:
     - !n!Crons: cron: "0 18 7 * *"
   push: !n!Push:
@@ -85,4 +85,4 @@ on: !n!Dispatch:
 #           echo "ENV:"
 #           cat $GITHUB_ENV
 
-#. antEnd
+## antEnd
