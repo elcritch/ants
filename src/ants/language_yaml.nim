@@ -25,7 +25,7 @@ macro listImpl*(codeBlock: untyped): untyped =
     result.add(ch)
 
 type NList* = object
-var list* = NList()
+let list* = NList()
 
 template `!`*(list: NList, blk: untyped): untyped =
   listImpl(blk)
@@ -77,7 +77,7 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
 
 type NN* = object
 
-var n*: NN
+let n* = NN()
 
 proc `!`*(nn: NN): NN =
   nn
