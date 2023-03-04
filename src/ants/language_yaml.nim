@@ -25,8 +25,6 @@ macro listImpl*(codeBlock: untyped): untyped =
 
 macro settersImpl*[T](typ: typedesc[T], variable: typed) =
   ## makes settors for each field in the given `typ`. 
-  # echo "setters::"
-
   let typImpl = getImpl(typ)
   var fields = newStmtList()
   let val = ident("val")
@@ -99,42 +97,18 @@ template `!`*[T](objTyp: typedesc[T], blk: untyped): untyped =
   item(objTyp, blk)
 
 macro `!`*[T](objTyp: typedesc[T]): untyped =
-  # echo "repr:!: ", objTyp.treeRepr
   result = objTyp
 
 macro `qq`*(foo: untyped): untyped =
-  # echo "repr:q: ", foo.treeRepr
-  # let qn = nnkAccQuoted.newTree(foo)
   let qn = newStrLitNode repr(foo)
-  # echo "res:foo:"
-  # echo treeRepr qn
   result = quote do:
     NQuote(name: `qn`)
-  # echo "res:q:"
-  # echo treeRepr result
 
 macro `!`*(nq: NQuote,  blk: untyped): untyped =
-  # item(objTyp, blk)
-  # echo "!:nq: ", nq.treeRepr
-  # echo "!:blk: ", blk.treeRepr
   let nm = nq[1][1].strVal
-  # echo "!:nm: ", nm.treeRepr
   let qnm = nnkAccQuoted.newTree(ident nm)
   result = quote do:
     `qnm`(`blk`)
-  # echo "!:res: ", result.repr
-
-
-macro `!`*(a: untyped, blk: untyped): untyped =
-  echo "!:arg: ", a.treeRepr
-  if a.kind == nnkSym and a.strVal in ["type"]:
-    let qnm = nnkAccQuoted.newTree(ident repr(a))
-    result = quote do:
-      `qnm`(`blk`)
-  else:
-    result = quote do:
-      item(`a`, `blk`)
-  echo "!:res: ", result.repr
 
 macro `-`*[T](a: typedesc[T], blk: untyped): T =
   result = quote do:
