@@ -63,18 +63,45 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
 type
   NN* = object
   NList* = object
+  NTag* = object
 
 let
   list* = NList()
   n* = NN()
+  tag* = NTag()
+  # TAG* = NTag()
 
+macro `%`*(a: NN, b: untyped): untyped =
+  echo "%: ", treeRepr(a)
+  echo "%: ", treeRepr(b[0])
+  # let id = newStrLitNode(repr b[0])
+  let id = b[0]
+  let m = quote do:
+    import test
+  echo "M: "
+  echo treeRepr m
+  result = quote do:
+    import `id`
+  echo "MM: "
+  echo treeRepr result
+
+template TAG*(a: untyped): NN = n
+# macro TAG*(a: untyped): untyped =
+#   echo "TAG: ", treeRepr(a)
+#   quote do:
+#     n
+
+macro `!`*(nn: NN, nb: NTag): NTag =
+  echo "!!: ", nn.treeRepr
+  echo "!!: ", nb.treeRepr
+  result = quote do:
+    TAG
 
 
 template `!`*(list: NList, blk: untyped): untyped =
   listImpl(blk)
 
-proc `!`*(nn: NN): NN =
-  nn
+proc `!`*(nn: NN): NN = nn
 
 template `!`*[T](nn: NN, objTyp: typedesc[T], blk: untyped): untyped =
   item(objTyp, blk)
@@ -129,11 +156,6 @@ macro `---`*(a: untyped): untyped =
   elif repr(a) == "antEnd":
     result = quote do:
       antEnd()
-
-macro TAG*(a: untyped): untyped =
-  echo "TAG: ", treeRepr(a)
-  quote do:
-    discard
 
 macro `q`*(a, b: untyped): untyped =
   echo treeRepr a
