@@ -1,7 +1,7 @@
 #? replace(sub = "## ", by = "")
-## import ants/language_yaml, github_options
-## antStart
-%TAG !n! tag:github_options
+## import ants/language_yaml
+%TAG !n! tag:ants/langs/github_options
+--- !antStart
 
 name: "Docker"
 

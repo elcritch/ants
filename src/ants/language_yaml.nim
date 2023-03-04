@@ -149,11 +149,11 @@ template serializeToJson() =
   echo jn.pretty()
 
 macro `---`*(a: untyped): untyped =
-  echo treeRepr(a)
-  if repr(a) == "antStart":
+  echo "---:::", treeRepr(a)
+  if repr(a) == "!antStart":
     result = quote do:
       antStart()
-  elif repr(a) == "antEnd":
+  elif repr(a) == "!antEnd":
     result = quote do:
       antEnd()
 
