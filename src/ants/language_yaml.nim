@@ -128,8 +128,9 @@ macro `!`*(nq: NQuote,  blk: untyped): untyped =
 macro `!`*(a: untyped, blk: untyped): untyped =
   echo "!:arg: ", a.treeRepr
   if a.kind == nnkSym and a.strVal in ["type"]:
+    let qnm = nnkAccQuoted.newTree(ident repr(a))
     result = quote do:
-      discard
+      `qnm`(`blk`)
   else:
     result = quote do:
       item(`a`, `blk`)
