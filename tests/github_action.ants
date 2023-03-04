@@ -1,0 +1,78 @@
+#? replace(sub = "!", by = "") | replace(sub = "#.. ", by = "")
+#.. import ants/language_v1, github_options
+#.. !antStart
+
+name: "Docker"
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+on: !&Dispatch:
+  workflow_dispatch: !&WorkFlow:
+    inputs: !&Inputs:
+      logLevel: !&LogLevel:
+        description: "Log level"
+        required: true
+        # default: "warning"
+        # type: choice
+        # options:
+        # - info
+        # - warning
+        # - debug
+  schedule:
+    - cron: "0 18 7 * *"
+  push:
+    paths:
+      - "esp-idf/Dockerfile"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+# jobs:
+#   build:
+#     strategy:
+#       matrix:
+#         version: ["5.0", "4.4"]
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: read
+#       packages: write
+#       # This is used to complete the identity challenge
+#       # with sigstore/fulcio when running outside of PRs.
+#       id-token: write
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
+
+#       - name: Set up QEMU
+#         uses: docker/setup-qemu-action@v2
+#         with:
+#           platforms: 'arm64'
+
+#       # Workaround: https://github.com/docker/build-push-action/issues/461
+#       - name: Setup Docker buildx
+#         uses: docker/setup-buildx-action@79abd3f86f79a9d68a23c75a09a9a85889262adf
+
+#       # Login against a Docker registry except on PR
+#       # https://github.com/docker/login-action
+#       - name: Log into registry ${{ env.REGISTRY }}
+#         # if: github.event_name != 'pull_request'
+#         uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+#         with:
+#           registry: ${{ env.REGISTRY }}
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.GITHUB_TOKEN }}
+
+#       # Extract metadata (tags, labels) for Docker
+#       - name: Set Tag
+#         run: |
+#           DATE=$(date --iso-8601)
+#           RTAG=$(cat .git/HEAD | tr '/' ' ' | cut -d ' ' -f 4)
+#           echo "RTAG=$RTAG" >> $GITHUB_ENV
+#           echo "DATE=$DATE" >> $GITHUB_ENV
+#           echo "ENV:"
+#           cat $GITHUB_ENV

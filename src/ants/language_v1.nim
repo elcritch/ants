@@ -91,6 +91,11 @@ template item*[T](typ: typedesc[T], blk: untyped): auto =
   ##
   `-`(typ, blk)
 
+template `&`*[T](typ: typedesc[T], blk: untyped): auto =
+  ## alias for `-` template above.
+  ##
+  `-`(typ, blk)
+
 template serializeToJson() =
   var ss = MsgStream.init(encodingMode = MSGPACK_OBJ_TO_MAP)
   ss.pack(antConfigValue)
