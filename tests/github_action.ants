@@ -11,10 +11,10 @@ name: "Docker"
 # documentation.
 
 expandMacros:
-  on: !&Dispatch:
-    workflow_dispatch: !&WorkFlow:
-      inputs: !&Inputs:
-        logLevel: !&LogLevel:
+  on: !*Dispatch:
+    workflow_dispatch: !*WorkFlow:
+      inputs: !*Inputs:
+        logLevel: !*LogLevel:
           description: "Log level"
           required: true
           default: "warning"
@@ -25,7 +25,7 @@ expandMacros:
             - "debug"
     schedule: !list:
       - !Crons: cron: "0 18 7 * *"
-    push: !&Push:
+    push: !*Push:
       paths: !list:
         - "esp-idf/Dockerfile"
 

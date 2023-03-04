@@ -23,16 +23,29 @@ macro list*(codeBlock: untyped): untyped =
   for ch in codeBlock.children:
     result.add(ch)
 
-macro settersImpl*[T](typ: typedesc[T], variable: typed) =
+macro settersImpl*(typ: typed, variable: typed) =
   ## makes settors for each field in the given `typ`. 
+  echo "typ::"
+  echo treeRepr(typ)
+
   let typImpl = getImpl(typ)
+  echo "typ::impl::"
+  echo treeRepr(typImpl)
+  let typImplFields = typImpl[^1][^1]
+  echo "typ::fields::"
+  echo treeRepr(typImplFields)
+
   var fields = newStmtList()
   let val = ident("val")
-  for node in typImpl[^1][^1]:
+  for node in typImplFields:
+    echo "\nFIELD"
     let name = 
       if node[0].kind == nnkPostfix: node[0][1]
       else: node[0]
     let fieldTyp = node[1]
+
+    echo "fieldTyp:::: ", treeRepr(fieldTyp)
+
     let fproc =
       if fieldTyp.kind == nnkBracketExpr:
         let fieldName = fieldTyp[0]
@@ -52,17 +65,35 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
         else:
           raise newException(ValueError, "unhandled type: " & repr(fieldName))
       else:
-        quote do:
-          template `name`(`val`: `fieldTyp`) {.used.} =
-            ## set field of given name with value
-            `variable`.`name` = `val`
+        let fieldTypImpl = getImpl(fieldTyp)
+        echo "fieldTypImpl: ", treeRepr(fieldTypImpl)
+        if fieldTyp.kind == nnkSym and fieldTypImpl == newNilLit() or
+           fieldTyp.kind == nnkSym and repr(fieldTyp) in ["string", "bool"]:
+          quote do:
+            template `name`(val: `fieldTyp`) =
+              ## set field of given name with value
+              `variable`.`name` = val
+        else:
+          echo "fieldTyp::"
+          echo treeRepr(fieldTyp)
+          quote do:
+            template `name`(blk: untyped) =
+              ## set field of given name with value
+              `variable`.`name` =
+                block:
+                  var val: `fieldTyp`
+                  settersImpl(`fieldTyp`, val)
+                  blk
+                  val
     fields.add fproc
   result = fields
+  echo "settersImpl::"
+  echo repr(result)
 
-template `-`*(blk: string): auto =
+template `-`*(blk: string): string =
   blk
 
-template `-`*[T](typ: typedesc[T], blk: untyped): auto =
+template `-`*[T](typ: typedesc[T], blk: untyped): T =
   ## helps construct an object using "block call" syntax like:
   ##    
   ##     item MyObject:
@@ -86,12 +117,13 @@ template `-`*[T](typ: typedesc[T], blk: untyped): auto =
     blk
     val
 
-template item*[T](typ: typedesc[T], blk: untyped): auto =
+template item*[T](typ: typedesc[T], blk: untyped): T =
   ## alias for `-` template above.
   ##
-  `-`(typ, blk)
+  expandMacros:
+    `-`(typ, blk)
 
-template `*`*[T](typ: typedesc[T], blk: untyped): auto =
+template `*`*[T](typ: typedesc[T], blk: untyped): T =
   ## alias for `-` template above.
   ##
   `-`(typ, blk)
