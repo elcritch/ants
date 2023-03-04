@@ -10,10 +10,10 @@ name: "Docker"
 # separate terms of service, privacy policy, and support
 # documentation.
 
-on: !n!Dispatch:
-  workflow_dispatch: !n!WorkFlow:
-    inputs: !n!Inputs:
-      logLevel: !n!LogLevel:
+on: !Dispatch:
+  workflow_dispatch: !WorkFlow:
+    inputs: !Inputs:
+      logLevel: !LogLevel:
         description: "Log level"
         required: true
         default: "warning"
@@ -30,7 +30,7 @@ on: !n!Dispatch:
           ## """
   schedule: !list:
     - !n!Crons: cron: "0 18 7 * *"
-  push: !n!Push:
+  push: !Push:
     paths: !list:
       - "esp-idf/Dockerfile"
 

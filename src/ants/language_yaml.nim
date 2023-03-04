@@ -44,31 +44,22 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
       if fieldTyp.kind == nnkBracketExpr:
         let fieldName = fieldTyp[0]
         let fieldTyp = fieldTyp[1]
-        let tagName = ident("n" & repr(fieldTyp))
 
         if repr(fieldName) == "Option":
           quote do:
-            template `tagName`(blk: untyped): `fieldTyp` =
-              item `fieldTyp`: blk
             template `name`(`val`: `fieldTyp`) {.used.} =
               ## adds values to the field 
               `variable`.`name` = some(`val`)
         elif repr(fieldName) in ["seq"]:
           let fkind = ident "openArray"
           quote do:
-            template `tagName`(blk: untyped): `fieldTyp` =
-              item `fieldTyp`: blk
             template `name`(`val`: `fkind`[`fieldTyp`]) {.used.} =
               ## adds values to the field
               `variable`.`name`.add(`val`)
         else:
           raise newException(ValueError, "unhandled type: " & repr(fieldName))
       else:
-        let tagName = ident("n" & repr(fieldTyp))
         quote do:
-          template `tagName`(blk: untyped): `fieldTyp` =
-            item `fieldTyp`:
-              blk
           template `name`(`val`: `fieldTyp`) {.used.} =
             ## set field of given name with value
             `variable`.`name` = `val`
@@ -83,6 +74,9 @@ proc `!`*(nn: NN): NN =
   nn
 
 template `!`*[T](nn: NN, objTyp: typedesc[T], blk: untyped): untyped =
+  item(objTyp, blk)
+
+template `!`*[T](objTyp: typedesc[T], blk: untyped): untyped =
   item(objTyp, blk)
 
 template `-`*[T](blk: T): T =
@@ -116,11 +110,6 @@ template item*[T](typ: typedesc[T], blk: untyped): auto =
 #   ## alias for `-` template above.
 #   ##
 #   item(typ, blk)
-
-template `@`*[T](typ: typedesc[T], blk: untyped): auto =
-  ## alias for `-` template above.
-  ##
-  `-`(typ, blk)
 
 template serializeToJson() =
   var ss = MsgStream.init(encodingMode = MSGPACK_OBJ_TO_MAP)
