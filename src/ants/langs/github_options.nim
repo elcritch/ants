@@ -22,7 +22,7 @@ type
     description*: string
     required*: bool
     default*: string
-    # `type`: string
+    `type`*: string
     options*: seq[string]
 
   Crons* = object

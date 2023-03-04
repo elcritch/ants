@@ -8,7 +8,6 @@ func str*(val: static[string]): string =
   ## default block string formatting. Currently uses `strutils.dedent`.
   dedent(val)
 
-
 macro listImpl*(codeBlock: untyped): untyped =
   ## turns each line in the passed in code-block into an array:
   ## 
@@ -26,10 +25,13 @@ macro listImpl*(codeBlock: untyped): untyped =
 
 macro settersImpl*[T](typ: typedesc[T], variable: typed) =
   ## makes settors for each field in the given `typ`. 
+  # echo "setters::"
+
   let typImpl = getImpl(typ)
   var fields = newStmtList()
   let val = ident("val")
   for node in typImpl[^1][^1]:
+    # echo "setters:field: ", node.repr
     let name = 
       if node[0].kind == nnkPostfix: node[0][1]
       else: node[0]
@@ -59,38 +61,31 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
             `variable`.`name` = `val`
     fields.add fproc
   result = fields
+  # echo "settersImpl::"
+  # echo result.repr
 
 type
   NN* = object
   NList* = object
   NTag* = object
+  NQuote* = object
+    name*: string
 
 let
   list* = NList()
   n* = NN()
   tag* = NTag()
-  # TAG* = NTag()
 
 macro `%`*(a: NN, b: untyped): untyped =
-  echo "%: ", treeRepr(a)
-  echo "%: ", treeRepr(b[0])
-  # let id = newStrLitNode(repr b[0])
   let id = b[0]
-  let m = quote do:
-    import test
-  echo "M: "
-  echo treeRepr m
   result = quote do:
     import `id`
-  echo "MM: "
-  echo treeRepr result
 
 template TAG*(a: untyped): NN = n
 
 macro `!`*(nn: NN, nb: NTag): NTag =
   result = quote do:
     TAG
-
 
 template `!`*(list: NList, blk: untyped): untyped =
   listImpl(blk)
@@ -104,8 +99,41 @@ template `!`*[T](objTyp: typedesc[T], blk: untyped): untyped =
   item(objTyp, blk)
 
 macro `!`*[T](objTyp: typedesc[T]): untyped =
+  # echo "repr:!: ", objTyp.treeRepr
   result = objTyp
 
+macro `qq`*(foo: untyped): untyped =
+  # echo "repr:q: ", foo.treeRepr
+  # let qn = nnkAccQuoted.newTree(foo)
+  let qn = newStrLitNode repr(foo)
+  # echo "res:foo:"
+  # echo treeRepr qn
+  result = quote do:
+    NQuote(name: `qn`)
+  # echo "res:q:"
+  # echo treeRepr result
+
+macro `!`*(nq: NQuote,  blk: untyped): untyped =
+  # item(objTyp, blk)
+  # echo "!:nq: ", nq.treeRepr
+  # echo "!:blk: ", blk.treeRepr
+  let nm = nq[1][1].strVal
+  # echo "!:nm: ", nm.treeRepr
+  let qnm = nnkAccQuoted.newTree(ident nm)
+  result = quote do:
+    `qnm`(`blk`)
+  # echo "!:res: ", result.repr
+
+
+macro `!`*(a: untyped, blk: untyped): untyped =
+  echo "!:arg: ", a.treeRepr
+  if a.kind == nnkSym and a.strVal in ["type"]:
+    result = quote do:
+      discard
+  else:
+    result = quote do:
+      item(`a`, `blk`)
+  echo "!:res: ", result.repr
 
 macro `-`*[T](a: typedesc[T], blk: untyped): T =
   result = quote do:
@@ -150,18 +178,13 @@ template serializeToJson() =
   echo jn.pretty()
 
 macro `---`*(a: untyped): untyped =
-  echo "---:::", treeRepr(a)
+  # echo "---:::", treeRepr(a)
   if repr(a) == "!antStart":
     result = quote do:
       antStart()
   elif repr(a) == "!antEnd":
     result = quote do:
       antEnd()
-
-macro `q`*(a, b: untyped): untyped =
-  echo treeRepr a
-  result = quote do:
-    discard
 
 template `|`*(a: untyped): string =
   a
