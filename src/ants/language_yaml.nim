@@ -66,7 +66,8 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
     fields.add fproc
   result = fields
 
-type NN* = object
+type
+  NN* = object
 
 let n* = NN()
 
