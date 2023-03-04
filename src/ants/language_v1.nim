@@ -37,27 +37,46 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
       if fieldTyp.kind == nnkBracketExpr:
         let fieldName = fieldTyp[0]
         let fieldTyp = fieldTyp[1]
+        let tagName = ident("n" & repr(fieldTyp))
 
         if repr(fieldName) == "Option":
           quote do:
+            template `tagName`(blk: untyped): `fieldTyp` =
+              item `fieldTyp`: blk
             template `name`(`val`: `fieldTyp`) {.used.} =
               ## adds values to the field 
               `variable`.`name` = some(`val`)
         elif repr(fieldName) in ["seq"]:
           let fkind = ident "openArray"
           quote do:
+            template `tagName`(blk: untyped): `fieldTyp` =
+              item `fieldTyp`: blk
             template `name`(`val`: `fkind`[`fieldTyp`]) {.used.} =
               ## adds values to the field
               `variable`.`name`.add(`val`)
         else:
           raise newException(ValueError, "unhandled type: " & repr(fieldName))
       else:
+        let tagName = ident("n" & repr(fieldTyp))
         quote do:
+          template `tagName`(blk: untyped): `fieldTyp` =
+            item `fieldTyp`:
+              blk
           template `name`(`val`: `fieldTyp`) {.used.} =
             ## set field of given name with value
             `variable`.`name` = `val`
     fields.add fproc
   result = fields
+
+type NN* = object
+
+var n*: NN
+
+proc `!`*[T](nn: NN): NN =
+  nn
+
+template `!`*[T](nn: NN, objTyp: typedesc[T], blk: untyped): untyped =
+  item(objTyp, blk)
 
 template `-`*(blk: string): auto =
   blk
@@ -91,7 +110,7 @@ template item*[T](typ: typedesc[T], blk: untyped): auto =
   ##
   `-`(typ, blk)
 
-template `*`*[T](typ: typedesc[T], blk: untyped): auto =
+template `@`*[T](typ: typedesc[T], blk: untyped): auto =
   ## alias for `-` template above.
   ##
   `-`(typ, blk)
@@ -104,7 +123,6 @@ template serializeToJson() =
   echo jn.pretty()
 
 macro `---`*(a: untyped): untyped =
-  echo "HIIII"
   echo treeRepr(a)
   if repr(a) == "antStart":
     result = quote do:
@@ -118,10 +136,13 @@ macro TAG*(a: untyped): untyped =
   quote do:
     discard
 
-macro `%`*(a, b: untyped): untyped =
+macro `q`*(a, b: untyped): untyped =
   echo treeRepr a
   result = quote do:
     discard
+
+template `|`*(a: untyped): string =
+  a
 
 template antDeclareStart*[T](typ: typedesc[T]): untyped =
   template antStart*(): untyped =

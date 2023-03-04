@@ -31,4 +31,10 @@ type
   Push* = object
     paths*: seq[string]
 
+# template nDispatch*(blk: untyped): Dispatch = item Dispatch: blk
+# template nWorkFlow*(blk: untyped): WorkFlow = item WorkFlow: blk
+# template nInputs*(blk: untyped): Inputs = item Inputs: blk
+# template nLogLevel*(blk: untyped): LogLevel = item LogLevel: blk
+# template nPush*(blk: untyped): Push = item Push: blk
+
 antDeclareStart(GithubAction)

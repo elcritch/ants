@@ -1,7 +1,7 @@
-#? replace(sub = "!", by = "") | replace(sub = "#.. ", by = "")
-#.. import ants/language_v1, github_options
-#.. import macros
-#.. expandMacros: !antStart
+#? replace(sub = "#. ", by = "")
+#. import ants/language_yaml, github_options
+#. import macros
+#. expandMacros: antStart
 
 name: "Docker"
 
@@ -10,24 +10,30 @@ name: "Docker"
 # separate terms of service, privacy policy, and support
 # documentation.
 
-expandMacros:
-  on: !*Dispatch:
-    workflow_dispatch: !*WorkFlow:
-      inputs: !*Inputs:
-        logLevel: !*LogLevel:
-          description: "Log level"
-          required: true
-          default: "warning"
-          !% type: "choice"
-          options: !list:
-            - "info"
-            - "warning"
-            - "debug"
-    schedule: !list:
-      - !Crons: cron: "0 18 7 * *"
-    push: !*Push:
-      paths: !list:
-        - "esp-idf/Dockerfile"
+on: !n!Dispatch:
+  workflow_dispatch: !n!WorkFlow:
+    inputs: !n!Inputs:
+      logLevel: !n!LogLevel:
+        description: "Log level"
+        required: true
+        default: "warning"
+        # !q type: "choices"
+        options: !list:
+          - "info"
+          - "warning"
+          - "debug"
+        default: | #. str"""
+          faf
+          111
+          fdfa / fdaf
+          fdafd
+          #. """
+  schedule: !list:
+    - !n!Crons: cron: "0 18 7 * *"
+  push: !n!Push:
+    paths: !list:
+      - "esp-idf/Dockerfile"
+
 
 # env:
 #   REGISTRY: ghcr.io
@@ -79,4 +85,4 @@ expandMacros:
 #           echo "ENV:"
 #           cat $GITHUB_ENV
 
-#.. antEnd
+#. antEnd

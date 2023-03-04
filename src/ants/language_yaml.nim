@@ -8,7 +8,7 @@ func str*(val: static[string]): string =
   ## default block string formatting. Currently uses `strutils.dedent`.
   dedent(val)
 
-macro list*(codeBlock: untyped): untyped =
+macro listImpl*(codeBlock: untyped): untyped =
   ## turns each line in the passed in code-block into an array:
   ## 
   ##     list: 
@@ -23,77 +23,71 @@ macro list*(codeBlock: untyped): untyped =
   for ch in codeBlock.children:
     result.add(ch)
 
-macro settersImpl*(typ: typed, variable: typed) =
+type NList* = object
+var list* = NList()
+
+template `!`*(list: NList, blk: untyped): untyped =
+  listImpl(blk)
+
+macro settersImpl*[T](typ: typedesc[T], variable: typed) =
   ## makes settors for each field in the given `typ`. 
-  echo "typ::"
-  echo treeRepr(typ)
-
   let typImpl = getImpl(typ)
-  echo "typ::impl::"
-  echo treeRepr(typImpl)
-  let typImplFields = typImpl[^1][^1]
-  echo "typ::fields::"
-  echo treeRepr(typImplFields)
-
   var fields = newStmtList()
   let val = ident("val")
-  for node in typImplFields:
-    echo "\nFIELD"
+  for node in typImpl[^1][^1]:
     let name = 
       if node[0].kind == nnkPostfix: node[0][1]
       else: node[0]
     let fieldTyp = node[1]
-
-    echo "fieldTyp:::: ", treeRepr(fieldTyp)
-
     let fproc =
       if fieldTyp.kind == nnkBracketExpr:
         let fieldName = fieldTyp[0]
         let fieldTyp = fieldTyp[1]
+        let tagName = ident("n" & repr(fieldTyp))
 
         if repr(fieldName) == "Option":
           quote do:
+            template `tagName`(blk: untyped): `fieldTyp` =
+              item `fieldTyp`: blk
             template `name`(`val`: `fieldTyp`) {.used.} =
               ## adds values to the field 
               `variable`.`name` = some(`val`)
         elif repr(fieldName) in ["seq"]:
           let fkind = ident "openArray"
           quote do:
+            template `tagName`(blk: untyped): `fieldTyp` =
+              item `fieldTyp`: blk
             template `name`(`val`: `fkind`[`fieldTyp`]) {.used.} =
               ## adds values to the field
               `variable`.`name`.add(`val`)
         else:
           raise newException(ValueError, "unhandled type: " & repr(fieldName))
       else:
-        let fieldTypImpl = getImpl(fieldTyp)
-        echo "fieldTypImpl: ", treeRepr(fieldTypImpl)
-        if fieldTyp.kind == nnkSym and fieldTypImpl == newNilLit() or
-           fieldTyp.kind == nnkSym and repr(fieldTyp) in ["string", "bool"]:
-          quote do:
-            template `name`(val: `fieldTyp`) =
-              ## set field of given name with value
-              `variable`.`name` = val
-        else:
-          echo "fieldTyp::"
-          echo treeRepr(fieldTyp)
-          quote do:
-            template `name`(blk: untyped) =
-              ## set field of given name with value
-              `variable`.`name` =
-                block:
-                  var val: `fieldTyp`
-                  settersImpl(`fieldTyp`, val)
-                  blk
-                  val
+        let tagName = ident("n" & repr(fieldTyp))
+        quote do:
+          template `tagName`(blk: untyped): `fieldTyp` =
+            item `fieldTyp`:
+              blk
+          template `name`(`val`: `fieldTyp`) {.used.} =
+            ## set field of given name with value
+            `variable`.`name` = `val`
     fields.add fproc
   result = fields
-  echo "settersImpl::"
-  echo repr(result)
 
-template `-`*(blk: string): string =
+type NN* = object
+
+var n*: NN
+
+proc `!`*(nn: NN): NN =
+  nn
+
+template `!`*[T](nn: NN, objTyp: typedesc[T], blk: untyped): untyped =
+  item(objTyp, blk)
+
+template `-`*[T](blk: T): T =
   blk
 
-template `-`*[T](typ: typedesc[T], blk: untyped): T =
+template item*[T](typ: typedesc[T], blk: untyped): auto =
   ## helps construct an object using "block call" syntax like:
   ##    
   ##     item MyObject:
@@ -117,13 +111,12 @@ template `-`*[T](typ: typedesc[T], blk: untyped): T =
     blk
     val
 
-template item*[T](typ: typedesc[T], blk: untyped): T =
-  ## alias for `-` template above.
-  ##
-  expandMacros:
-    `-`(typ, blk)
+# template `-`*[T](typ: typedesc[T], blk: untyped): auto =
+#   ## alias for `-` template above.
+#   ##
+#   item(typ, blk)
 
-template `*`*[T](typ: typedesc[T], blk: untyped): T =
+template `@`*[T](typ: typedesc[T], blk: untyped): auto =
   ## alias for `-` template above.
   ##
   `-`(typ, blk)
@@ -136,7 +129,6 @@ template serializeToJson() =
   echo jn.pretty()
 
 macro `---`*(a: untyped): untyped =
-  echo "HIIII"
   echo treeRepr(a)
   if repr(a) == "antStart":
     result = quote do:
@@ -150,10 +142,13 @@ macro TAG*(a: untyped): untyped =
   quote do:
     discard
 
-macro `%`*(a, b: untyped): untyped =
+macro `q`*(a, b: untyped): untyped =
   echo treeRepr a
   result = quote do:
     discard
+
+template `|`*(a: untyped): string =
+  a
 
 template antDeclareStart*[T](typ: typedesc[T]): untyped =
   template antStart*(): untyped =
