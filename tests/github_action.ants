@@ -29,7 +29,7 @@ on: !Dispatch:
           fdafd
           ## """
   schedule: !list:
-    - !n!Crons: cron: "0 18 7 * *"
+    - !Crons: cron: "0 18 7 * *"
   push: !Push:
     paths: !list:
       - "esp-idf/Dockerfile"

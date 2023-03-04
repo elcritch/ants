@@ -86,14 +86,8 @@ macro `%`*(a: NN, b: untyped): untyped =
   echo treeRepr result
 
 template TAG*(a: untyped): NN = n
-# macro TAG*(a: untyped): untyped =
-#   echo "TAG: ", treeRepr(a)
-#   quote do:
-#     n
 
 macro `!`*(nn: NN, nb: NTag): NTag =
-  echo "!!: ", nn.treeRepr
-  echo "!!: ", nb.treeRepr
   result = quote do:
     TAG
 
@@ -109,8 +103,15 @@ template `!`*[T](nn: NN, objTyp: typedesc[T], blk: untyped): untyped =
 template `!`*[T](objTyp: typedesc[T], blk: untyped): untyped =
   item(objTyp, blk)
 
-template `-`*[T](blk: T): T =
-  blk
+macro `!`*[T](objTyp: typedesc[T]): untyped =
+  result = objTyp
+
+
+macro `-`*[T](a: typedesc[T], blk: untyped): T =
+  result = quote do:
+    item(`a`, `blk`)
+
+template `-`*[T](obj: T): T = obj
 
 template item*[T](typ: typedesc[T], blk: untyped): auto =
   ## helps construct an object using "block call" syntax like:
