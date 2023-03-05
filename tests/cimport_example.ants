@@ -1,141 +1,148 @@
 import ants/language_v1
-import cimport_options
+import cimporter/configs
 
 antExport ImporterConfig:
-  cimports:list: item ImportConfig:
-    name: "rosidl"
-  cimports:list: item ImportConfig:
-    name: "rcutils"
-    count: 12346
-    sources: "deps/rcutils/include"
-    globs: ["**/*.h"]
-    skipFiles:list:
-      "rcutils/stdatomic_helper/win32/stdatomic.h"
-      "rcutils/stdatomic_helper/gcc/stdatomic.h"
-      "rcutils/stdatomic_helper.h"
-    includes:list:
-      "deps/rcutils/include"
-
-    renameFiles:list:
-      Replace(pattern: peg"^'string.' .+", repl: "rstring$1")
-    renameFiles:list:
-      - Replace:
-        pattern: peg"^'string.' .+"
-        repl: "rstring$1"
-    sourceMods:list:
-      - CSrcMods:
-        fileMatch: peg"'rcutils/visibility_control.h'"
-        deletes:list:
-          LineDelete(match: peg"'RCUTILS_PUBLIC'")
-          LineDelete(match: peg"'RCUTILS_PUBLIC_TYPE'")
-      - CSrcMods:
-        fileMatch: peg"'rcutils/error_handling.h'"
-        deletes:list:
-          - LineDelete:
-            match: peg"'make sure our math is right'"
-            until: peg"'Maximum length calculations incorrect'"
-            inclusive: true
-      - CSrcMods:
-        fileMatch: peg"'rcutils/macros.h'"
-        deletes:list:
-          LineDelete(match: peg"'RCUTILS_THREAD_LOCAL'")
-      - CSrcMods:
-        fileMatch: peg"'rcutils/error_handling.h'"
-        deletes:list:
-          LineDelete(match: peg"'__STDC_WANT_LIB_EXT1__'")
-      - CSrcMods:
-        fileMatch: peg"'rcutils/types/array_list.h'"
-        substitutes:list:
-          - Replace:
-            pattern: peg"'struct rcutils_array_list_impl_s;'"
-            repl: str"""
-                typedef struct rcutils_array_list_impl_s
-                {
-                  size_t size;
-                  size_t capacity;
-                  void * list;
-                  size_t data_size;
-                  rcutils_allocator_t allocator;
-                } rcutils_array_list_impl_t;
-                """
-          - Replace:
-            pattern: peg"'rcutils_array_list_impl_s'"
-            repl: "rcutils_array_list_impl_t"
-      - CSrcMods:
-        fileMatch: peg"'rcutils/types/hash_map.h'"
-        substitutes:list:
-          - Replace:
-            pattern: peg"'rcutils_hash_map_entry_s'"
-            repl: str"""
-                typedef struct rcutils_hash_map_entry_t
-                {
-                  size_t hashed_key;
-                  void * key;
-                  void * value;
-                } rcutils_hash_map_entry_t;
-                """
-          - Replace:
-            repl: str"""
-                typedef struct rcutils_hash_map_impl_t
-                {
-                  // This is the array of buckets that will store the keypairs
-                  rcutils_array_list_t * map;
-                  size_t capacity;
-                  size_t size;
-                  size_t key_size;
-                  size_t data_size;
-                  rcutils_hash_map_key_hasher_t key_hashing_func;
-                  rcutils_hash_map_key_cmp_t key_cmp_func;
-                  rcutils_allocator_t allocator;
-                } rcutils_hash_map_impl_t;
-                """
-            pattern: peg"'rcutils_hash_map_impl_s'"
-            comment: true
-      - CSrcMods:
-        fileMatch: peg"'test'"
-        substitutes:list:
-          - Replace:
-            pattern: peg"'rcutils_array_list_impl_s'"
-            repl: "rcutils_array_list_impl_t"
-    c2NimCfgs:list:
-      - C2NimCfg:
-        fileMatch: peg"'rcutils/testing/fault_injection.h'"
-        fileContents: str"""
-          #mangle "'_rcutils_fault_injection_maybe_fail'" "rcutils_fault_injection_maybe_fail"
-          """
-      - C2NimCfg:
-        fileMatch: peg"'rcutils/types/' !'rcutils_ret' .+"
-        fileContents: str"""
-          #skipInclude
-          """
-        rawNims: str"""
-          import rcutils_ret
-          import ../allocator
-          """
-      - C2NimCfg:
-        fileMatch: peg"'rcutils/testing/fault_injection.h'"
-        fileContents: """
-          #skipInclude
-          """
-      - C2NimCfg:
-        fileMatch: peg"'rcutils/types/hash_map.h'"
-        rawNims: str"""
-          import array_list
-          """
-      - C2NimCfg:
-        fileMatch: peg"'rcutils/types/string_map.h'"
-        rawNims: str"""
-          import ../allocator
-          import ../types/array_list
-          """
-      - C2NimCfg:
-        fileMatch: peg"'rcutils/logging.h'"
-        rawNims: str"""
-          import ./time
-          proc RCUTILS_LOGGING_AUTOINIT*() {.importc: "RCUTILS_LOGGING_AUTOINIT", header: "rcutils/logging.h".}
-          """
-      - C2NimCfg:
-        fileMatch: peg"'rcutils/isalnum_no_locale.h'"
-        rawNims: str"""
-          converter charToNum*(c: char): int = c.int 
-          """
+  cimports:list:
+    - ImportConfig:
+      name: "rosidl_typesupport_introspection_c"
+      sources: "deps/rosidl/rosidl_typesupport_introspection_c/include"
+      globs: ["**/*.h"]
+      includes: [
+        "deps/rcutils/include",
+        "deps/rosidl/rosidl_typesupport_introspection_c/include",
+        ]
+      defines: []
+      skipFiles: []
+    - ImportConfig:
+      name: "rcutils"
+      sources: "deps/rcutils/include"
+      globs: ["**/*.hpp"]
+      skipFiles:list:
+        "rcutils/stdatomic_helper/win32/stdatomic.h"
+        "rcutils/stdatomic_helper/gcc/stdatomic.h"
+        "rcutils/stdatomic_helper.h"
+      includes:list:
+        "deps/rcutils/include"
+      renameFiles:list:
+        Replace(pattern: peg"^'string.' .+", repl: "rstring$1")
+      renameFiles:list:
+        - Replace:
+          pattern: peg"^'string.' .+"
+          repl: "rstring$1"
+      sourceMods:list:
+        - CSrcMods:
+          fileMatch: peg"'rcutils/visibility_control.h'"
+          deletes:list:
+            LineDelete(match: peg"'RCUTILS_PUBLIC'")
+            LineDelete(match: peg"'RCUTILS_PUBLIC_TYPE'")
+        - CSrcMods:
+          fileMatch: peg"'rcutils/error_handling.h'"
+          deletes:list:
+            - LineDelete:
+              match: peg"'make sure our math is right'"
+              until: peg"'Maximum length calculations incorrect'"
+              inclusive: true
+        - CSrcMods:
+          fileMatch: peg"'rcutils/macros.h'"
+          deletes:list:
+            LineDelete(match: peg"'RCUTILS_THREAD_LOCAL'")
+        - CSrcMods:
+          fileMatch: peg"'rcutils/error_handling.h'"
+          deletes:list:
+            LineDelete(match: peg"'__STDC_WANT_LIB_EXT1__'")
+        - CSrcMods:
+          fileMatch: peg"'rcutils/types/array_list.h'"
+          substitutes:list:
+            - Replace:
+              pattern: peg"'struct rcutils_array_list_impl_s;'"
+              repl: str"""
+                  typedef struct rcutils_array_list_impl_s
+                  {
+                    size_t size;
+                    size_t capacity;
+                    void * list;
+                    size_t data_size;
+                    rcutils_allocator_t allocator;
+                  } rcutils_array_list_impl_t;
+                  """
+            - Replace:
+              pattern: peg"'rcutils_array_list_impl_s'"
+              repl: "rcutils_array_list_impl_t"
+        - CSrcMods:
+          fileMatch: peg"'rcutils/types/hash_map.h'"
+          substitutes:list:
+            - Replace:
+              pattern: peg"'rcutils_hash_map_entry_s'"
+              repl: str"""
+                  typedef struct rcutils_hash_map_entry_t
+                  {
+                    size_t hashed_key;
+                    void * key;
+                    void * value;
+                  } rcutils_hash_map_entry_t;
+                  """
+            - Replace:
+              repl: str"""
+                  typedef struct rcutils_hash_map_impl_t
+                  {
+                    // This is the array of buckets that will store the keypairs
+                    rcutils_array_list_t * map;
+                    size_t capacity;
+                    size_t size;
+                    size_t key_size;
+                    size_t data_size;
+                    rcutils_hash_map_key_hasher_t key_hashing_func;
+                    rcutils_hash_map_key_cmp_t key_cmp_func;
+                    rcutils_allocator_t allocator;
+                  } rcutils_hash_map_impl_t;
+                  """
+              pattern: peg"'rcutils_hash_map_impl_s'"
+              comment: true
+        - CSrcMods:
+          fileMatch: peg"'test'"
+          substitutes:list:
+            - Replace:
+              pattern: peg"'rcutils_array_list_impl_s'"
+              repl: "rcutils_array_list_impl_t"
+      c2NimCfgs:list:
+        - C2NimCfg:
+          fileMatch: peg"'rcutils/testing/fault_injection.h'"
+          fileContents: str"""
+            #mangle "'_rcutils_fault_injection_maybe_fail'" "rcutils_fault_injection_maybe_fail"
+            """
+        - C2NimCfg:
+          fileMatch: peg"'rcutils/types/' !'rcutils_ret' .+"
+          fileContents: str"""
+            #skipInclude
+            """
+          rawNims: str"""
+            import rcutils_ret
+            import ../allocator
+            """
+        - C2NimCfg:
+          fileMatch: peg"'rcutils/testing/fault_injection.h'"
+          fileContents: """
+            #skipInclude
+            """
+        - C2NimCfg:
+          fileMatch: peg"'rcutils/types/hash_map.h'"
+          rawNims: str"""
+            import array_list
+            """
+        - C2NimCfg:
+          fileMatch: peg"'rcutils/types/string_map.h'"
+          rawNims: str"""
+            import ../allocator
+            import ../types/array_list
+            """
+        - C2NimCfg:
+          fileMatch: peg"'rcutils/logging.h'"
+          rawNims: str"""
+            import ./time
+            proc RCUTILS_LOGGING_AUTOINIT*() {.importc: "RCUTILS_LOGGING_AUTOINIT", header: "rcutils/logging.h".}
+            """
+        - C2NimCfg:
+          fileMatch: peg"'rcutils/isalnum_no_locale.h'"
+          rawNims: str"""
+            converter charToNum*(c: char): int = c.int 
+            """
