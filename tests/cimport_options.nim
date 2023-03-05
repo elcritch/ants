@@ -7,6 +7,7 @@ type
 
   ImportConfig* = object
     name*: string
+    count*: int
     sources*: string
     globs*: seq[string]
     defines*: seq[string]

@@ -26,38 +26,20 @@ import macros
 import tables
 
 
-proc copyMems*(a, b: pointer, size: Natural) =
-  var aa = cast[cstring](a)
-  var bb = cast[cstring](b)
-  for i in 0..<size:
-    aa[i] = bb[i]
+proc swapEndian64*(outp, inp: uint64|int64) =
+  for i in 0..<sizeof(inp):
+    outp = 0xFF and (inp shr (i*8))
+    outp = outp shl 8
 
+proc swapEndian32*(outp, inp: int32|uint32) =
+  for i in 0..<sizeof(inp):
+    outp = 0xFF and (inp shr (i*8))
+    outp = outp shl 8
 
-proc swapEndian64*(outp, inp: pointer) =
-  var i = cast[cstring](inp)
-  var o = cast[cstring](outp)
-  o[0] = i[7]
-  o[1] = i[6]
-  o[2] = i[5]
-  o[3] = i[4]
-  o[4] = i[3]
-  o[5] = i[2]
-  o[6] = i[1]
-  o[7] = i[0]
-
-proc swapEndian32*(outp, inp: pointer) =
-  var i = cast[cstring](inp)
-  var o = cast[cstring](outp)
-  o[0] = i[3]
-  o[1] = i[2]
-  o[2] = i[1]
-  o[3] = i[0]
-
-proc swapEndian16*(outp, inp: pointer) =
-  var i = cast[cstring](inp)
-  var o = cast[cstring](outp)
-  o[0] = i[1]
-  o[1] = i[0]
+template swapEndian16*(outp, inp: int16|uint16) =
+  for i in 0..<sizeof(inp):
+    outp = 0xFF and (inp shr (i*8))
+    outp = outp shl 8
 
 
 when not declared SomeFloat:
@@ -159,15 +141,15 @@ when system.cpuEndian == littleEndian:
 
   proc store16[StringStream](s: StringStream, val: uint16) =
     var res: uint16
-    swapEndian16(addr(res), unsafeAddr(val))
+    swapEndian16(res, val)
     s.write(res)
   proc store32[StringStream](s: StringStream, val: uint32) =
     var res: uint32
-    swapEndian32(addr(res), unsafeAddr(val))
+    swapEndian32(res, val)
     s.write(res)
   proc store64[StringStream](s: StringStream, val: uint64) =
     var res: uint64
-    swapEndian64(addr(res), unsafeAddr(val))
+    swapEndian64(res, val)
     s.write(res)
 else:
   proc take8_8(val: uint8): uint8 {.inline.} = val
