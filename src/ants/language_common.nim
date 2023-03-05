@@ -107,10 +107,10 @@ proc pack_type*[StringStream; K, V](s: StringStream, val: OrderedTable[K,V]) =
 
 template antStringify*[T](tup: typedesc[T], tostr, fromstr: untyped) =
   proc pack_type*[StringStream](s: StringStream, val: T) =
-    s.pack_type(tostr(val))
+    s.pack(tostr(val))
   proc unpack_type*[StringStream](s: StringStream, val: var T) =
     var ps: string
-    s.unpack_type(ps)
+    s.unpack(ps)
     val = fromstr(ps)
 
 template serializeToJson() =
