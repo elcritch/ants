@@ -25,21 +25,32 @@
 import macros
 import tables
 
+
 template swapEndian64*(outp, inp: uint64|int64) =
+  outp = 0
   for i in 0..<sizeof(inp):
-    outp = 0xFF and (inp shr (i*8))
-    outp = outp shl 8
+    outp = (outp shl 8) or (0xFF and (inp shr (i*8)))
 
 template swapEndian32*(outp, inp: int32|uint32) =
+  outp = 0
   for i in 0..<sizeof(inp):
-    outp = 0xFF and (inp shr (i*8))
-    outp = outp shl 8
+    outp = (outp shl 8) or (0xFF and (inp shr (i*8)))
 
 template swapEndian16*(outp, inp: int16|uint16) =
+  outp = 0
   for i in 0..<sizeof(inp):
-    outp = 0xFF and (inp shr (i*8))
-    outp = outp shl 8
+    outp = (outp shl 8) or (0xFF and (inp shr (i*8)))
 
+when isMainModule:
+  var a, b: int32
+  b = 0xFFFFAAAA'i32
+  swapEndian32(a, b)
+  echo "b: ", b
+  echo "a: ", a
+  echo "a[3]: ", (a shr (3*8)) and 0xFF
+  echo "a[2]: ", (a shr (2*8)) and 0xFF
+  echo "a[1]: ", (a shr (1*8)) and 0xFF
+  echo "a[0]: ", (a shr (0*8)) and 0xFF
 
 when not declared SomeFloat:
   type
