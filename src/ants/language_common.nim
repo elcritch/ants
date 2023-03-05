@@ -131,8 +131,8 @@ template antDeclareStart*[T](typ: typedesc[T]): untyped =
 
       let res = pack(antConfigValue)
       antConfigBuff = res
-      when defined(nimscript):
-        echo res
+      # when defined(nimscript):
+      #   echo res
     else:
       import json, streams, msgpack4nim
       import msgpack4nim/msgpack2json
