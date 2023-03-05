@@ -1,4 +1,4 @@
-import pegs, tables, ants/language_v1
+import pegs, tables, ants/language_common
 from options import Option
 export pegs, Option
 

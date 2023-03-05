@@ -1,12 +1,8 @@
 import macros, json, tables
 from strutils import dedent
-from language_v1 import settersImpl, item, pack_type
+import language_common
 
-export json, dedent, tables, pack_type
-
-func str*(val: static[string]): string =
-  ## default block string formatting. Currently uses `strutils.dedent`.
-  dedent(val)
+export json, dedent, tables, language_common
 
 macro listImpl*(codeBlock: untyped): untyped =
   ## turns each line in the passed in code-block into an array:

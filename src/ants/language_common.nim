@@ -1,23 +1,12 @@
 import macros
 from strutils import dedent
 export dedent
-import language_common
-export json, tables, language_common
+import json, tables
+export json, tables
 
-macro list*(codeBlock: untyped): untyped =
-  ## turns each line in the passed in code-block into an array:
-  ## 
-  ##     list: 
-  ##       1
-  ##       2
-  ## 
-  ## becomes:
-  ## 
-  ##     [ 1, 2, ]
-  ## 
-  result = newNimNode(nnkBracket)
-  for ch in codeBlock.children:
-    result.add(ch)
+func str*(val: static[string]): string =
+  ## default block string formatting. Currently uses `strutils.dedent`.
+  dedent(val)
 
 macro settersImpl*[T](typ: typedesc[T], variable: typed) =
   ## makes settors for each field in the given `typ`. 
@@ -69,7 +58,6 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
 
 type
   NN* = object
-  AntMap*[K,V] = seq[(K, V)]
 
 var n*: NN
 
@@ -82,11 +70,29 @@ template `!`*[T](nn: NN, objTyp: typedesc[T], blk: untyped): untyped =
 template `-`*(blk: string): auto =
   blk
 
-
-template `-`*[T](typ: typedesc[T], blk: untyped): auto =
-  ## alias for `-` template above.
-  ##
-  item(typ, blk)
+template item*[T](typ: typedesc[T], blk: untyped): auto =
+  ## helps construct an object using "block call" syntax like:
+  ##    
+  ##     item MyObject:
+  ##        field1: "value"
+  ##        field2: 33 
+  ## 
+  ## This template provides 'setters' for each field in the object. 
+  ## These can be found via auto-complete. 
+  ## 
+  ## Because they're functions, you can also call them however normal
+  ## functions can be called:
+  ## 
+  ##     item MyObject:
+  ##        field2 33
+  ##        field1("value")
+  ##        myValue.field3()
+  ## 
+  block:
+    var val: T
+    settersImpl(typ, val)
+    blk
+    val
 
 template serializeToJson() =
   var ss = MsgStream.init(encodingMode = MSGPACK_OBJ_TO_MAP)
@@ -95,24 +101,47 @@ template serializeToJson() =
   let jn = ss.toJsonNode()
   echo jn.pretty()
 
-macro `---`*(a: untyped): untyped =
-  echo treeRepr(a)
-  if repr(a) == "antStart":
-    result = quote do:
-      antStart()
-  elif repr(a) == "antEnd":
-    result = quote do:
-      antEnd()
-
-# template TAG*(a: untyped): NN = n
 
 macro `q`*(a, b: untyped): untyped =
   echo treeRepr a
   result = quote do:
     discard
 
+proc pack_type*[StringStream; K, V](s: StringStream, val: Table[K,V]) =
+  s.pack_map(val.len)
+  for field, value in val:
+    s.pack(field)
+    s.pack(value)
+proc pack_type*[StringStream; K, V](s: StringStream, val: OrderedTable[K,V]) =
+  s.pack_map(val.len)
+  for field, value in val:
+    s.pack(field)
+    s.pack(value)
 
+template antDeclareStart*[T](typ: typedesc[T]): untyped =
+  template antStart*(): untyped =
+    var antConfigValue* {.inject.}: T = default(typ)
+    var antConfigBuff* {.inject.}: string
 
+    settersImpl(typ, antConfigValue)
+
+  template antEnd*(): untyped =
+    when defined(nimscript) or defined(nimscripter):
+      import ants/msgpack_lite
+
+      let res = pack(antConfigValue)
+      antConfigBuff = res
+      when defined(nimscript):
+        echo res
+    else:
+      import json, streams, msgpack4nim
+      import msgpack4nim/msgpack2json
+      serializeToJson()
+
+template antExport*[T](typ: typedesc[T], blk: untyped): untyped =
+  antStart()
+  blk
+  antEnd()
 
 
 
