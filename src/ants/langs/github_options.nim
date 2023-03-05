@@ -1,5 +1,6 @@
-import pegs, options, tables, ants/language_v1
-export pegs, options
+import pegs, tables, ants/language_v1
+from options import Option
+export pegs, Option
 
 type
   GithubAction* = object

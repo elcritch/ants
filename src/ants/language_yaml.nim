@@ -1,8 +1,8 @@
-import macros, json
+import macros, json, tables
 from strutils import dedent
-from language_v1 import settersImpl, item
+from language_v1 import settersImpl, item, pack_type
 
-export json, dedent
+export json, dedent, tables, pack_type
 
 func str*(val: static[string]): string =
   ## default block string formatting. Currently uses `strutils.dedent`.
@@ -11,18 +11,27 @@ func str*(val: static[string]): string =
 macro listImpl*(codeBlock: untyped): untyped =
   ## turns each line in the passed in code-block into an array:
   ## 
-  ##     list: 
-  ##       1
-  ##       2
-  ## 
-  ## becomes:
-  ## 
-  ##     [ 1, 2, ]
-  ## 
   result = newNimNode(nnkBracket)
   for ch in codeBlock.children:
     result.add(ch)
 
+macro mapImpl*(codeBlock: untyped): untyped =
+  ## turns each line in the passed in code-block into an array:
+  ## 
+  echo "mapImpl::"
+  echo treeRepr codeBlock
+  result = newNimNode(nnkTableConstr)
+  for ch in codeBlock.children:
+    let nm = newStrLitNode repr(ch[0])
+    let val = ch[1]
+    let r = quote do:
+      {"a": 1, "b": 2}
+    echo "r:"
+    echo treeRepr(r)
+    result.add nnkExprColonExpr.newTree(nm, val)
+    # result.add(ch)
+  echo "res:"
+  echo repr(result)
 
 type
   NN* = object

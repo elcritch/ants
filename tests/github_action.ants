@@ -34,9 +34,9 @@ on: !Dispatch:
     paths: !list:
       - "esp-idf/Dockerfile"
 
-# env: !map:
-#   REGISTRY: "ghcr.io"
-#   IMAGE_NAME: "${{ github.repository }}"
+env: !map:
+  REGISTRY: "ghcr.io"
+  IMAGE_NAME: "${{ github.repository }}"
 
 # jobs:
 #   build:

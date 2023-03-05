@@ -23,6 +23,7 @@
 #
 #-------------------------------------
 import macros
+import tables
 
 
 proc copyMems*(a, b: pointer, size: Natural) =

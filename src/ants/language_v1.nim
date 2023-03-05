@@ -1,8 +1,8 @@
 import macros
 from strutils import dedent
 export dedent
-import json
-export json
+import json, tables
+export json, tables
 
 func str*(val: static[string]): string =
   ## default block string formatting. Currently uses `strutils.dedent`.
@@ -35,48 +35,45 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
     let fieldTyp = node[1]
     let fproc =
       if fieldTyp.kind == nnkBracketExpr:
-        let fieldName = fieldTyp[0]
-        let fieldTyp = fieldTyp[1]
+        let fieldParent = fieldTyp
+        let fieldName = fieldParent[0]
+        let fieldTyp = fieldParent[1]
         let tagName = ident("n" & repr(fieldTyp))
 
         if repr(fieldName) == "Option":
           quote do:
-            template `tagName`(blk: untyped): `fieldTyp` =
-              item `fieldTyp`: blk
             template `name`(`val`: `fieldTyp`) {.used.} =
               ## adds values to the field 
               `variable`.`name` = some(`val`)
         elif repr(fieldName) in ["seq"]:
           let fkind = ident "openArray"
           quote do:
-            template `tagName`(blk: untyped): `fieldTyp` =
-              item `fieldTyp`: blk
             template `name`(`val`: `fkind`[`fieldTyp`]) {.used.} =
               ## adds values to the field
               `variable`.`name`.add(`val`)
         elif repr(fieldName) in ["Table"]:
           let fkind = ident "openArray"
+          echo "TABLE: "
+          echo treeRepr fieldParent
+          let fieldTypB = fieldParent[2]
           quote do:
-            template `tagName`(blk: untyped): `fieldTyp` =
-              item `fieldTyp`: blk
-            template `name`(`val`: `fkind`[`fieldTyp`]) {.used.} =
+            template `name`(`val`: `fkind`[(`fieldTyp`, `fieldTypB`)]) {.used.} =
               ## adds values to the field
-              `variable`.`name`.add(`val`)
+              `variable`.`name` = toTable(`val`)
         else:
           raise newException(ValueError, "unhandled type: " & repr(fieldName))
       else:
         let tagName = ident("n" & repr(fieldTyp))
         quote do:
-          template `tagName`(blk: untyped): `fieldTyp` =
-            item `fieldTyp`:
-              blk
           template `name`(`val`: `fieldTyp`) {.used.} =
             ## set field of given name with value
             `variable`.`name` = `val`
     fields.add fproc
   result = fields
 
-type NN* = object
+type
+  NN* = object
+  AntMap*[K,V] = seq[(K, V)]
 
 var n*: NN
 
@@ -134,10 +131,7 @@ macro `---`*(a: untyped): untyped =
     result = quote do:
       antEnd()
 
-macro TAG*(a: untyped): untyped =
-  echo "TAG: ", treeRepr(a)
-  quote do:
-    discard
+# template TAG*(a: untyped): NN = n
 
 macro `q`*(a, b: untyped): untyped =
   echo treeRepr a
@@ -146,6 +140,12 @@ macro `q`*(a, b: untyped): untyped =
 
 template `|`*(a: untyped): string =
   a
+
+proc pack_type*[StringStream; K, V](s: StringStream, val: Table[K,V]) =
+  s.pack_map(val.len)
+  for field, value in val:
+    s.pack(field)
+    s.pack(value)
 
 template antDeclareStart*[T](typ: typedesc[T]): untyped =
   template antStart*(): untyped =
