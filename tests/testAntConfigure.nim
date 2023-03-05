@@ -19,4 +19,5 @@ test "test run":
   )
 
 test "test serde":
-  check cimportsCfg.cimports[0].name == "rcutils"
+  check cimportsCfg.cimports[0].name == "rosidl"
+  check cimportsCfg.cimports[1].name == "rcutils"

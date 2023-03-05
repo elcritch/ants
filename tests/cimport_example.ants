@@ -3,6 +3,8 @@ import cimport_options
 
 antExport ImporterConfig:
   cimports:list: item ImportConfig:
+    name: "rosidl"
+  cimports:list: item ImportConfig:
     name: "rcutils"
     count: 12346
     sources: "deps/rcutils/include"
