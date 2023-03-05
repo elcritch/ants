@@ -13,6 +13,7 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
   let typImpl = getImpl(typ)
   var fields = newStmtList()
   let val = ident("val")
+  let variable = ident(repr(variable))
   for node in typImpl[^1][^1]:
     let name = 
       if node[0].kind == nnkPostfix: node[0][1]
@@ -89,10 +90,11 @@ template item*[T](typ: typedesc[T], blk: untyped): auto =
   ##        myValue.field3()
   ## 
   block:
-    var val: T
-    settersImpl(typ, val)
+    var antConfigValue {.inject.}: T
+    expandMacros:
+      settersImpl(typ, antConfigValue)
     blk
-    val
+    antConfigValue
 
 proc pack_type*[StringStream; K, V](s: StringStream, val: Table[K,V]) =
   s.pack_map(val.len)

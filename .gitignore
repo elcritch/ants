@@ -13,3 +13,5 @@ tests/cimport_example_yaml
 tests/github_action
 src/ants/language_yaml
 src/ants/msgpack_lite
+src/ants/langs/github_options
+tests/cimport_example_err

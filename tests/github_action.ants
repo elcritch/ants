@@ -16,7 +16,6 @@ on: !Dispatch:
       logLevel: !LogLevel:
         description: "Log level"
         required: true
-        default: "warning"
         !qq type: "choices"
         options: !list:
           - "info"
