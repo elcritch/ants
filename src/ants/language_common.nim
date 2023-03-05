@@ -105,6 +105,14 @@ proc pack_type*[StringStream; K, V](s: StringStream, val: OrderedTable[K,V]) =
     s.pack(field)
     s.pack(value)
 
+template antStringify*[T](tup: typedesc[T], tostr, fromstr: untyped) =
+  proc pack_type*[StringStream](s: StringStream, val: T) =
+    s.pack_type(tostr(val))
+  proc unpack_type*[StringStream](s: StringStream, val: var T) =
+    var ps: string
+    s.unpack_type(ps)
+    val = fromstr(ps)
+
 template serializeToJson() =
   var ss = MsgStream.init(encodingMode = MSGPACK_OBJ_TO_MAP)
   ss.pack(antConfigValue)
