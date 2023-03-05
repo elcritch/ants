@@ -54,6 +54,14 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
             template `name`(`val`: `fkind`[`fieldTyp`]) {.used.} =
               ## adds values to the field
               `variable`.`name`.add(`val`)
+        elif repr(fieldName) in ["Table"]:
+          let fkind = ident "openArray"
+          quote do:
+            template `tagName`(blk: untyped): `fieldTyp` =
+              item `fieldTyp`: blk
+            template `name`(`val`: `fkind`[`fieldTyp`]) {.used.} =
+              ## adds values to the field
+              `variable`.`name`.add(`val`)
         else:
           raise newException(ValueError, "unhandled type: " & repr(fieldName))
       else:
@@ -81,7 +89,7 @@ template `!`*[T](nn: NN, objTyp: typedesc[T], blk: untyped): untyped =
 template `-`*(blk: string): auto =
   blk
 
-template `-`*[T](typ: typedesc[T], blk: untyped): auto =
+template item*[T](typ: typedesc[T], blk: untyped): auto =
   ## helps construct an object using "block call" syntax like:
   ##    
   ##     item MyObject:
@@ -105,15 +113,10 @@ template `-`*[T](typ: typedesc[T], blk: untyped): auto =
     blk
     val
 
-template item*[T](typ: typedesc[T], blk: untyped): auto =
+template `-`*[T](typ: typedesc[T], blk: untyped): auto =
   ## alias for `-` template above.
   ##
-  `-`(typ, blk)
-
-template `@`*[T](typ: typedesc[T], blk: untyped): auto =
-  ## alias for `-` template above.
-  ##
-  `-`(typ, blk)
+  item(typ, blk)
 
 template serializeToJson() =
   var ss = MsgStream.init(encodingMode = MSGPACK_OBJ_TO_MAP)

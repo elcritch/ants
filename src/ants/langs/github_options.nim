@@ -1,10 +1,11 @@
-import pegs, options, ants/language_v1
+import pegs, options, tables, ants/language_v1
 export pegs, options
 
 type
   GithubAction* = object
     name*: string
     on*: Dispatch
+    env*: Table[string, string]
   
   Dispatch* = object
     workflow_dispatch*: WorkFlow

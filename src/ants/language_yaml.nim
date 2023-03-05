@@ -1,8 +1,8 @@
-import macros
+import macros, json
 from strutils import dedent
-export dedent
-import json
-export json
+from language_v1 import settersImpl, item
+
+export json, dedent
 
 func str*(val: static[string]): string =
   ## default block string formatting. Currently uses `strutils.dedent`.
@@ -23,44 +23,6 @@ macro listImpl*(codeBlock: untyped): untyped =
   for ch in codeBlock.children:
     result.add(ch)
 
-macro settersImpl*[T](typ: typedesc[T], variable: typed) =
-  ## makes settors for each field in the given `typ`. 
-  let typImpl = getImpl(typ)
-  var fields = newStmtList()
-  let val = ident("val")
-  for node in typImpl[^1][^1]:
-    # echo "setters:field: ", node.repr
-    let name = 
-      if node[0].kind == nnkPostfix: node[0][1]
-      else: node[0]
-    let fieldTyp = node[1]
-    let fproc =
-      if fieldTyp.kind == nnkBracketExpr:
-        let fieldName = fieldTyp[0]
-        let fieldTyp = fieldTyp[1]
-
-        if repr(fieldName) == "Option":
-          quote do:
-            template `name`(`val`: `fieldTyp`) {.used.} =
-              ## adds values to the field 
-              `variable`.`name` = some(`val`)
-        elif repr(fieldName) in ["seq"]:
-          let fkind = ident "openArray"
-          quote do:
-            template `name`(`val`: `fkind`[`fieldTyp`]) {.used.} =
-              ## adds values to the field
-              `variable`.`name`.add(`val`)
-        else:
-          raise newException(ValueError, "unhandled type: " & repr(fieldName))
-      else:
-        quote do:
-          template `name`(`val`: `fieldTyp`) {.used.} =
-            ## set field of given name with value
-            `variable`.`name` = `val`
-    fields.add fproc
-  result = fields
-  # echo "settersImpl::"
-  # echo result.repr
 
 type
   NN* = object
@@ -68,9 +30,11 @@ type
   NTag* = object
   NQuote* = object
     name*: string
+  NMap* = object
 
 let
   list* = NList()
+  map* = NMap()
   n* = NN()
   tag* = NTag()
 
@@ -87,6 +51,9 @@ macro `!`*(nn: NN, nb: NTag): NTag =
 
 template `!`*(list: NList, blk: untyped): untyped =
   listImpl(blk)
+
+template `!`*(list: NMap, blk: untyped): untyped =
+  mapImpl(blk)
 
 proc `!`*(nn: NN): NN = nn
 
@@ -115,30 +82,6 @@ macro `-`*[T](a: typedesc[T], blk: untyped): T =
     item(`a`, `blk`)
 
 template `-`*[T](obj: T): T = obj
-
-template item*[T](typ: typedesc[T], blk: untyped): auto =
-  ## helps construct an object using "block call" syntax like:
-  ##    
-  ##     item MyObject:
-  ##        field1: "value"
-  ##        field2: 33 
-  ## 
-  ## This template provides 'setters' for each field in the object. 
-  ## These can be found via auto-complete. 
-  ## 
-  ## Because they're functions, you can also call them however normal
-  ## functions can be called:
-  ## 
-  ##     item MyObject:
-  ##        field2 33
-  ##        field1("value")
-  ##        myValue.field3()
-  ## 
-  block:
-    var val: T
-    settersImpl(typ, val)
-    blk
-    val
 
 # template `-`*[T](typ: typedesc[T], blk: untyped): auto =
 #   ## alias for `-` template above.

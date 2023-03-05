@@ -24,7 +24,7 @@ on: !Dispatch:
           - "debug"
         default: | ## str"""
           faf
-          111
+          111.fd.fdafd
           fdfa / fdaf
           fdafd
           ## """
@@ -34,10 +34,9 @@ on: !Dispatch:
     paths: !list:
       - "esp-idf/Dockerfile"
 
-
-# env:
-#   REGISTRY: ghcr.io
-#   IMAGE_NAME: ${{ github.repository }}
+# env: !map:
+#   REGISTRY: "ghcr.io"
+#   IMAGE_NAME: "${{ github.repository }}"
 
 # jobs:
 #   build:
