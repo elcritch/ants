@@ -77,9 +77,8 @@ proc write*(s: StringStream, val: char|uint8|int8) =
   s.data.add(cast[char](val))
 
 proc write*(s: StringStream, val: uint16|int16|uint32|int32|uint64|int64) =
-  var x: int8
   for i in 0..<sizeof(val):
-    let c = cast[char](x)
+    let c = cast[char](0xFF and (val shr (i*8)))
     s.data.add(c)
 
 proc write*(s: StringStream, val: string) =
@@ -438,7 +437,6 @@ proc pack_string*(s: StringStream, len: int) =
   if len < 32:
     var d = uint8(0xa0) or uint8(len)
     s.write(take8_8(d))
-    # echo "pack string done"
   elif len < 256:
     s.write(chr(0xd9))
     s.write(uint8(len))

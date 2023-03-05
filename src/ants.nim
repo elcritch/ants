@@ -16,6 +16,7 @@ type
     file*: string
     bin*: bool
     hex*: bool
+    stringify*: bool
     yaml*: bool
     debug*: bool
     paths*: seq[string]
@@ -84,6 +85,8 @@ when isMainModule: # Preserve ability to `import api`/call from Nim
   let res = runConfigScript(app.file, systems.toSeq)
   if app.bin:
     echo res
+  elif app.stringify:
+    echo res.stringify()
   elif app.hex:
     echo res.hexPrint()
   elif app.yaml:
