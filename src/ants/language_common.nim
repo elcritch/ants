@@ -8,16 +8,23 @@ func str*(val: static[string]): string =
   ## default block string formatting. Currently uses `strutils.dedent`.
   dedent(val)
 
+var setterLevel* {.compileTime.} = "base"
+var setterLevelStack* {.compileTime.} = @["base"]
+
 macro settersImpl*[T](typ: typedesc[T], variable: typed) =
   ## makes settors for each field in the given `typ`. 
   let typImpl = getImpl(typ)
   var fields = newStmtList()
   let val = ident("val")
   let variable = ident(repr(variable))
+  let setterLevelVar = ident("setterLevel")
+  let setterId = newStrLitNode(setterLevel)
+
   for node in typImpl[^1][^1]:
     let name = 
       if node[0].kind == nnkPostfix: node[0][1]
       else: node[0]
+    let nameId = newStrLitNode(repr(name))
     let fieldTyp = node[1]
     let fproc =
       if fieldTyp.kind == nnkBracketExpr:
@@ -30,12 +37,16 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
           quote do:
             template `name`(`val`: `fieldTyp`) {.used.} =
               ## adds values to the field 
+              when `setterId` != `setterLevelVar`:
+                {.error: "Cannot use setter outside it's scope: " & $setterLevel & " : " & repr(`nameId`).}
               `variable`.`name` = some(`val`)
         elif repr(fieldName) in ["seq"]:
           let fkind = ident "openArray"
           quote do:
             template `name`(`val`: `fkind`[`fieldTyp`]) {.used.} =
               ## adds values to the field
+              when `setterId` != `setterLevelVar`:
+                {.error: "Cannot use setter outside it's scope: " & $setterLevel & " : " & repr(`nameId`).}
               `variable`.`name`.add(`val`)
         elif repr(fieldName) in ["Table"]:
           let fkind = ident "openArray"
@@ -45,6 +56,8 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
           quote do:
             template `name`(`val`: `fkind`[(`fieldTyp`, `fieldTypB`)]) {.used.} =
               ## adds values to the field
+              when `setterId` != `setterLevelVar`:
+                {.error: "Cannot use setter outside it's scope: " & $setterLevel & " : " & repr(`nameId`).}
               `variable`.`name` = toTable(`val`)
         else:
           raise newException(ValueError, "unhandled type: " & repr(fieldName))
@@ -53,6 +66,9 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
         quote do:
           template `name`(`val`: `fieldTyp`) {.used.} =
             ## set field of given name with value
+            when `setterId` != `setterLevelVar`:
+              {.error: "Cannot use setter outside it's scope: " & $setterLevel & " : " & repr(`nameId`).}
+              # raise newException(ValueError, "Cannot use setter outside it's scope: " & $setterLevel & " : " & repr(`nameId`))
             `variable`.`name` = `val`
     fields.add fproc
   result = fields
@@ -90,10 +106,15 @@ template item*[T](typ: typedesc[T], blk: untyped): auto =
   ##        myValue.field3()
   ## 
   block:
+    static:
+      setterLevel = $typ
+      setterLevelStack.add(setterLevel)
     var antConfigValue {.inject.}: T
-    expandMacros:
-      settersImpl(typ, antConfigValue)
+    settersImpl(typ, antConfigValue)
     blk
+    static:
+      discard setterLevelStack.pop()
+      setterLevel = setterLevelStack[^1]
     antConfigValue
 
 proc pack_type*[StringStream; K, V](s: StringStream, val: Table[K,V]) =
