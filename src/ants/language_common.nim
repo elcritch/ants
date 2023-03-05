@@ -139,6 +139,7 @@ template antDeclareStart*[T](typ: typedesc[T]): untyped =
       serializeToJson()
 
 template antExport*[T](typ: typedesc[T], blk: untyped): untyped =
+  antDeclareStart(typ)
   antStart()
   blk
   antEnd()
