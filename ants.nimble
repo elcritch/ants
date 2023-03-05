@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.2.4"
+version       = "0.3.0"
 author        = "Jaremy Creechley"
 description   = "ANT: statically typed configurations for Nim (and others)"
 license       = "MIT"
@@ -17,6 +17,7 @@ requires "compiler"
 requires "cligen"
 requires "msgpack4nim >= 0.4.0"
 requires "flatty"
+requires "yaml"
 
 task test, "run tests":
   exec "nim c --verbosity:0 -r tests/testAntConfigure.nim"

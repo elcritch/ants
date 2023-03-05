@@ -6,6 +6,7 @@ import json, osproc, os
 import msgpack4nim
 import msgpack4nim/msgpack2json
 import flatty/hexprint
+import yaml
 
 
 import compiler/[ast]
@@ -15,6 +16,7 @@ type
     file*: string
     bin*: bool
     hex*: bool
+    yaml*: bool
     debug*: bool
     paths*: seq[string]
 
@@ -84,5 +86,9 @@ when isMainModule: # Preserve ability to `import api`/call from Nim
     echo res
   elif app.hex:
     echo res.hexPrint()
+  elif app.yaml:
+    let js = res.toJsonNode().pretty()
+    let ym = loadDom(js)
+    echo ym.dump()
   else:
     echo res.toJsonNode().pretty()
