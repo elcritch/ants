@@ -25,13 +25,12 @@
 import macros
 import tables
 
-
-proc swapEndian64*(outp, inp: uint64|int64) =
+template swapEndian64*(outp, inp: uint64|int64) =
   for i in 0..<sizeof(inp):
     outp = 0xFF and (inp shr (i*8))
     outp = outp shl 8
 
-proc swapEndian32*(outp, inp: int32|uint32) =
+template swapEndian32*(outp, inp: int32|uint32) =
   for i in 0..<sizeof(inp):
     outp = 0xFF and (inp shr (i*8))
     outp = outp shl 8
