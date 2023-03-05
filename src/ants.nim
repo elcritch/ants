@@ -88,7 +88,7 @@ when isMainModule: # Preserve ability to `import api`/call from Nim
     echo res.hexPrint()
   elif app.yaml:
     let js = res.toJsonNode().pretty()
-    let ym = loadDom(js)
+    let ym = loadAs[YamlNode](s)
     echo ym.dump()
   else:
     echo res.toJsonNode().pretty()
