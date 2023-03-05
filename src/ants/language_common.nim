@@ -94,19 +94,6 @@ template item*[T](typ: typedesc[T], blk: untyped): auto =
     blk
     val
 
-template serializeToJson() =
-  var ss = MsgStream.init(encodingMode = MSGPACK_OBJ_TO_MAP)
-  ss.pack(antConfigValue)
-  ss.setPosition(0)
-  let jn = ss.toJsonNode()
-  echo jn.pretty()
-
-
-macro `q`*(a, b: untyped): untyped =
-  echo treeRepr a
-  result = quote do:
-    discard
-
 proc pack_type*[StringStream; K, V](s: StringStream, val: Table[K,V]) =
   s.pack_map(val.len)
   for field, value in val:
@@ -117,6 +104,14 @@ proc pack_type*[StringStream; K, V](s: StringStream, val: OrderedTable[K,V]) =
   for field, value in val:
     s.pack(field)
     s.pack(value)
+
+template serializeToJson() =
+  var ss = MsgStream.init(encodingMode = MSGPACK_OBJ_TO_MAP)
+  ss.pack(antConfigValue)
+  ss.setPosition(0)
+  let jn = ss.toJsonNode()
+  echo jn.pretty()
+
 
 template antDeclareStart*[T](typ: typedesc[T]): untyped =
   template antStart*(): untyped =
