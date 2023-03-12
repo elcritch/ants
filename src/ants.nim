@@ -18,11 +18,13 @@ type
     hex*: bool
     stringify*: bool
     yaml*: bool
+    json*: bool
     debug*: bool
     paths*: seq[string]
 
 const dflOpts = AntsOptions(
-  bin: false
+  bin: false,
+  json: true
 )
 
 proc fromVm*(t: typedesc[Peg], node: PNode): Peg =
@@ -93,5 +95,7 @@ when isMainModule: # Preserve ability to `import api`/call from Nim
     let js = res.toJsonNode().pretty()
     let ym = loadAs[YamlNode](js)
     echo ym.dump()
+  elif app.json:
+    echo res.toJsonNode().pretty()
   else:
     echo res.toJsonNode().pretty()
