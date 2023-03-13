@@ -1,5 +1,5 @@
 #? replace(sub = "## ", by = "")
-## import ants/language_yaml
+import ants/language_yaml
 %TAG !n! tag:ants/langs/github_options
 --- !antStart
 
@@ -21,12 +21,12 @@ on: !Dispatch:
           - "info"
           - "warning"
           - "debug"
-        default: | ## str"""
+        default: | str"""
           faf
           111.fd.fdafd
           fdfa / fdaf
           fdafd
-          ## """
+          """
   schedule: !list:
     - !Crons: cron: "0 18 7 * *"
   push: !Push:

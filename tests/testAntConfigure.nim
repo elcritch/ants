@@ -19,5 +19,5 @@ test "test run":
   )
 
 test "test serde":
-  check cimportsCfg.cimports[0].name == "rosidl"
+  check cimportsCfg.cimports[0].name == "rosidl_typesupport_introspection_c"
   check cimportsCfg.cimports[1].name == "rcutils"

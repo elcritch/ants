@@ -50,8 +50,8 @@ macro settersImpl*[T](typ: typedesc[T], variable: typed) =
               `variable`.`name`.add(`val`)
         elif repr(fieldName) in ["Table"]:
           let fkind = ident "openArray"
-          echo "TABLE: "
-          echo treeRepr fieldParent
+          # echo "TABLE: "
+          # echo treeRepr fieldParent
           let fieldTypB = fieldParent[2]
           quote do:
             template `name`(`val`: `fkind`[(`fieldTyp`, `fieldTypB`)]) {.used.} =
