@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.3.17"
+version       = "0.3.18"
 author        = "Jaremy Creechley"
 description   = "ANT: statically typed configurations for Nim (and others)"
 license       = "MIT"
@@ -11,10 +11,10 @@ bin           = @["ants"]
 
 # Dependencies
 
-# requires "nim <= 1.6.10"
-# requires "nimscripter >= 1.0.18"
+requires "nim <= 1.6.10"
+requires "nimscripter >= 1.0.18"
 requires "compiler"
-requires "https://github.com/elcritch/nimscripter.git#add-compiler-deps-v2"
+requires "nimscripter"
 requires "cligen"
 requires "msgpack4nim >= 0.4.0"
 requires "flatty"
