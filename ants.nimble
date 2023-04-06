@@ -13,8 +13,8 @@ bin           = @["ants"]
 
 # requires "nim <= 1.6.10"
 # requires "nimscripter >= 1.0.18"
-requires "https://github.com/elcritch/nimscripter.git#add-compiler-deps-v2"
 requires "compiler"
+requires "https://github.com/elcritch/nimscripter.git#add-compiler-deps-v2"
 requires "cligen"
 requires "msgpack4nim >= 0.4.0"
 requires "flatty"
