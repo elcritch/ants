@@ -13,7 +13,7 @@ bin           = @["ants"]
 
 # requires "nim <= 1.6.10"
 requires "nimscripter >= 1.0.18"
-requires "compiler == 1.6.10"
+requires "compiler"
 requires "cligen"
 requires "msgpack4nim >= 0.4.0"
 requires "flatty"
