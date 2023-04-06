@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.3.15"
+version       = "0.3.16"
 author        = "Jaremy Creechley"
 description   = "ANT: statically typed configurations for Nim (and others)"
 license       = "MIT"
